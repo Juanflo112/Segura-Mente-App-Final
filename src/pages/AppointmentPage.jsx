@@ -26,7 +26,8 @@ const AppointmentPage = () => {
         try {
             const user = JSON.parse(userData);
             setNombreUsuario(user.nombreUsuario || user.nombre || 'Usuario');
-            setIsPsychologist(user.tipoUsuario === 'Psicólogo/empleado');
+            const tipo = (user.tipoUsuario || '').toLowerCase();
+            setIsPsychologist(tipo.includes('empleado') || tipo.includes('psic'));
         } catch {
             navigate('/login', { replace: true });
         }

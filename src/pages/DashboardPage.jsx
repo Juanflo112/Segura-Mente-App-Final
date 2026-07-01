@@ -133,10 +133,12 @@ const DashboardPage = () => {
             onCancel={handleCancelRegister}
           />
         );
-      case 'citas':
-        return tipoUsuario === 'Psicólogo/empleado'
+      case 'citas': {
+        const tipo = (tipoUsuario || '').toLowerCase();
+        return (tipo.includes('empleado') || tipo.includes('psic'))
           ? <PsychologistAppointments />
           : <AppointmentScheduler />;
+      }
       default:
         return (
           <div className="content-area">
