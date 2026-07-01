@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import AppointmentScheduler from '../components/Appointments/AppointmentScheduler';
+import PsychologistAppointments from '../components/Appointments/PsychologistAppointments';
 import SessionWarning from '../components/SessionWarning';
 import useSessionTimeout from '../hooks/useSessionTimeout';
 import iconoCatalogo from '../assets/icons/IconoCatalogo.svg';
@@ -11,6 +12,7 @@ const AppointmentPage = () => {
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(true);
     const [nombreUsuario, setNombreUsuario] = useState('');
+    const [isPsychologist, setIsPsychologist] = useState(false);
     const timeoutRef = useRef(null);
 
     const { showWarning, remainingTime, resetTimer } = useSessionTimeout(5, 1);
@@ -24,6 +26,7 @@ const AppointmentPage = () => {
         try {
             const user = JSON.parse(userData);
             setNombreUsuario(user.nombreUsuario || user.nombre || 'Usuario');
+            setIsPsychologist(user.tipoUsuario === 'Psicólogo/empleado');
         } catch {
             navigate('/login', { replace: true });
         }
@@ -117,7 +120,7 @@ const AppointmentPage = () => {
 
                 <main className={`appt-page-main ${sidebarOpen ? 'sidebar-open' : ''}`}>
                     <div className="appt-page-background">
-                        <AppointmentScheduler />
+                        {isPsychologist ? <PsychologistAppointments /> : <AppointmentScheduler />}
                     </div>
                 </main>
             </div>

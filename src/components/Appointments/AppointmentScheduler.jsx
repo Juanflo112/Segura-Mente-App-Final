@@ -621,6 +621,9 @@ const AppointmentScheduler = () => {
                                             </div>
                                             <span className={`status-pill ${appointment.status === 'Agendada' ? 'active' : 'cancelled'}`}>
                                                 {appointment.status}
+                                                {appointment.status === 'Cancelada' && appointment.cancelledBy === 'psicologo' && (
+                                                    <span className="cancelled-by-badge"> · cancelada por el psicologo</span>
+                                                )}
                                             </span>
                                         </div>
                                         <small>{appointment.psychologistSpecialty}</small>

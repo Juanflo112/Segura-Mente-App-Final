@@ -1,0 +1,206 @@
+.psych-appt-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+    padding: 10px 4px;
+}
+
+.psych-appt-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: #71B0C5;
+    font-weight: 700;
+}
+
+.psych-appt-title {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 28px;
+    color: #2f2f2f;
+    margin: 0;
+}
+
+.psych-appt-subtitle {
+    font-size: 14px;
+    color: #666;
+    margin: -12px 0 0;
+    line-height: 1.5;
+}
+
+.psych-appt-loading {
+    color: #888;
+    font-style: italic;
+    text-align: center;
+    padding: 40px 0;
+}
+
+.psych-appt-msg {
+    padding: 12px 16px;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+.psych-appt-msg.success {
+    background: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #a5d6a7;
+}
+
+.psych-appt-msg.error {
+    background: #fdecea;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+}
+
+.psych-appt-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.psych-appt-section-title {
+    font-size: 16px;
+    font-weight: 700;
+    color: #2f2f2f;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin: 0;
+}
+
+.psych-appt-badge {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 24px;
+    height: 24px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 700;
+    padding: 0 8px;
+}
+
+.psych-appt-badge.pending {
+    background: #e3f2fd;
+    color: #1565c0;
+}
+
+.psych-appt-badge.cancelled {
+    background: #f3e5f5;
+    color: #6a1b9a;
+}
+
+.psych-appt-empty {
+    color: #888;
+    font-size: 14px;
+    font-style: italic;
+    padding: 20px 0;
+}
+
+.psych-appt-table-wrapper {
+    width: 100%;
+    overflow-x: auto;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.psych-appt-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    font-size: 14px;
+}
+
+.psych-appt-table thead tr {
+    background: #f0f7fb;
+}
+
+.psych-appt-table th {
+    padding: 12px 16px;
+    text-align: left;
+    font-weight: 700;
+    color: #2f2f2f;
+    border-bottom: 2px solid #d0e8f2;
+    white-space: nowrap;
+}
+
+.psych-appt-table td {
+    padding: 12px 16px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: top;
+    color: #444;
+}
+
+.psych-appt-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.psych-appt-table tbody tr:hover {
+    background: #f9fdff;
+}
+
+.psych-appt-table tbody tr.cancelled-row {
+    opacity: 0.7;
+}
+
+.psych-client-name {
+    display: block;
+    font-weight: 600;
+    color: #2f2f2f;
+}
+
+.psych-client-email {
+    display: block;
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+}
+
+.psych-no-notes {
+    color: #bbb;
+    font-style: italic;
+}
+
+.psych-cancel-btn {
+    background: #fff0f0;
+    color: #c62828;
+    border: 1px solid #ef9a9a;
+    border-radius: 6px;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+    white-space: nowrap;
+}
+
+.psych-cancel-btn:hover:not(:disabled) {
+    background: #c62828;
+    color: #fff;
+    border-color: #c62828;
+}
+
+.psych-cancel-btn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.psych-cancelled-by {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.psych-cancelled-by.psicologo {
+    background: #fce4ec;
+    color: #880e4f;
+}
+
+.psych-cancelled-by.cliente {
+    background: #fff3e0;
+    color: #e65100;
+}

@@ -28,6 +28,7 @@ class Appointment {
             psychologistSpecialty: row.psychologist_specialty || 'Psicólogo/a',
             notes: row.notes || '',
             status: row.status,
+            cancelledBy: row.cancelled_by || null,
             createdAt: row.created_at,
             updatedAt: row.updated_at
         };
@@ -121,12 +122,20 @@ class Appointment {
         return Appointment.findById(id);
     }
 
-    static async cancel(id) {
+    static async cancel(id, cancelledBy = 'cliente') {
         await db.query(
-            `UPDATE citas SET status = 'Cancelada', updated_at = NOW() WHERE id = ?`,
-            [id]
+            `UPDATE citas SET status = 'Cancelada', cancelled_by = ?, updated_at = NOW() WHERE id = ?`,
+            [cancelledBy, id]
         );
         return Appointment.findById(id);
+    }
+
+    static async findByPsychologist(email) {
+        const [rows] = await db.query(
+            `SELECT * FROM citas WHERE psychologist_email = ? ORDER BY date ASC, time ASC`,
+            [email]
+        );
+        return rows.map(Appointment.mapRow);
     }
 
     static async countActiveByClient(email, excludeId = null) {

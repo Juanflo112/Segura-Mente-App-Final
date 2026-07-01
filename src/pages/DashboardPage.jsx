@@ -4,6 +4,7 @@ import UserList from '../components/Dashboard/UserList';
 import UserEditForm from '../components/Dashboard/UserEditForm';
 import UserRegisterForm from '../components/Dashboard/UserRegisterForm';
 import AppointmentScheduler from '../components/Appointments/AppointmentScheduler';
+import PsychologistAppointments from '../components/Appointments/PsychologistAppointments';
 import SessionWarning from '../components/SessionWarning';
 import useSessionTimeout from '../hooks/useSessionTimeout';
 import './DashboardPage.css';
@@ -14,6 +15,7 @@ const DashboardPage = () => {
   const [selectedUser, setSelectedUser] = useState(null);
   const [nombreUsuario, setNombreUsuario] = useState('');
   const [emailUsuario, setEmailUsuario] = useState('');
+  const [tipoUsuario, setTipoUsuario] = useState('');
   const timeoutRef = useRef(null);
 
   const ADMIN_EMAIL = 'administrador@seguramente.com';
@@ -29,6 +31,7 @@ const DashboardPage = () => {
       const user = JSON.parse(userData);
       setNombreUsuario(user.nombreUsuario || user.nombre || 'Usuario');
       setEmailUsuario(user.email || '');
+      setTipoUsuario(user.tipoUsuario || '');
     }
   }, []);
 
@@ -131,7 +134,9 @@ const DashboardPage = () => {
           />
         );
       case 'citas':
-        return <AppointmentScheduler />;
+        return tipoUsuario === 'Psicólogo/empleado'
+          ? <PsychologistAppointments />
+          : <AppointmentScheduler />;
       default:
         return (
           <div className="content-area">

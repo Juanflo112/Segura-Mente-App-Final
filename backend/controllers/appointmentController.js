@@ -112,10 +112,45 @@ exports.cancelAppointment = async (req, res) => {
             return res.status(400).json({ success: false, message: 'La cita ya está cancelada.' });
         }
 
-        const cancelled = await Appointment.cancel(id);
+        const cancelled = await Appointment.cancel(id, 'cliente');
         res.json({ success: true, appointment: cancelled });
     } catch (error) {
         console.error('Error al cancelar cita:', error);
+        res.status(500).json({ success: false, message: 'Error al cancelar la cita.' });
+    }
+};
+
+exports.getMyAppointmentsAsPsychologist = async (req, res) => {
+    try {
+        const psychologistEmail = req.user.email;
+        const appointments = await Appointment.findByPsychologist(psychologistEmail);
+        res.json({ success: true, appointments });
+    } catch (error) {
+        console.error('Error al obtener citas del psic\u00f3logo:', error);
+        res.status(500).json({ success: false, message: 'Error al obtener las citas.' });
+    }
+};
+
+exports.cancelByPsychologist = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const psychologistEmail = req.user.email;
+
+        const existing = await Appointment.findById(id);
+        if (!existing) {
+            return res.status(404).json({ success: false, message: 'Cita no encontrada.' });
+        }
+        if (existing.psychologistEmail !== psychologistEmail) {
+            return res.status(403).json({ success: false, message: 'No tienes permiso para cancelar esta cita.' });
+        }
+        if (existing.status === 'Cancelada') {
+            return res.status(400).json({ success: false, message: 'La cita ya est\u00e1 cancelada.' });
+        }
+
+        const cancelled = await Appointment.cancel(id, 'psicologo');
+        res.json({ success: true, appointment: cancelled });
+    } catch (error) {
+        console.error('Error al cancelar cita por psic\u00f3logo:', error);
         res.status(500).json({ success: false, message: 'Error al cancelar la cita.' });
     }
 };
