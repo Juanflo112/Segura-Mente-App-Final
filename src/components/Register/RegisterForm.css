@@ -1,0 +1,289 @@
+.register-form-wrapper {
+  width: 100%;
+}
+
+.register-header {
+  margin-bottom: 20px;
+}
+
+
+.register-title {
+  font-size: 30px;
+  font-weight: 600;
+  color: #333;
+  margin: 0;
+}
+
+.brand-segura {
+  color: #8BC34A;
+}
+
+.brand-mente {
+  color: #64B5F6;
+}
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 7fr 1fr;
+  gap: 10px;
+}
+
+.form-row-date-phone {
+  display: grid;
+  grid-template-columns: 2fr 3fr;
+  gap: 20px;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group label {
+  font-size: 18px;
+  color: #5E5951;
+  margin-bottom: 8px;
+  font-weight: 600;
+  font-family: 'Open Sans';
+}
+
+.required {
+  color: #e57373;
+  font-weight: bold;
+}
+
+.form-group input {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: #fff;
+  border-bottom: 4px solid #e0e0e0;
+}
+
+.form-group input[type="date"] {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.3s;
+  background-color: #fff;
+  border-bottom: 4px solid #e0e0e0;
+  color: #5E5951;
+  font-family: 'Open Sans';
+  font-weight: 600;
+}
+
+/* Icono del calendario */
+.form-group input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+  border-radius: 4px;
+  margin-right: 2px;
+  opacity: 0.6;
+  filter: invert(0.4) sepia(1) saturate(3) hue-rotate(60deg);
+}
+
+.form-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  opacity: 1;
+}
+
+/* Personalización del calendario desplegable (solo funciona en algunos navegadores) */
+.form-group input[type="date"]::-webkit-datetime-edit {
+  padding: 0;
+  color: #e40132;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-fields-wrapper {
+  padding: 0;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-text {
+  color: #e0e0e0;
+  padding: 0 0.3em;
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-month-field,
+.form-group input[type="date"]::-webkit-datetime-edit-day-field,
+.form-group input[type="date"]::-webkit-datetime-edit-year-field {
+  color: #a7a7a7;
+  font-weight: 500;
+  font-family: 'Open Sans';
+
+}
+
+.form-group input[type="date"]::-webkit-datetime-edit-month-field:focus,
+.form-group input[type="date"]::-webkit-datetime-edit-day-field:focus,
+.form-group input[type="date"]::-webkit-datetime-edit-year-field:focus {
+  background-color: #A6D885;
+  color: white;
+  border-radius: 4px;
+  outline: none;
+}
+
+.form-group input:focus {
+  outline: none;
+  border-color: #8BC34A;
+  box-shadow: 0 0 0 2px rgba(139, 195, 74, 0.1);
+}
+
+.input-with-suffix {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-with-suffix input {
+  flex: 1;
+  padding-right: 50px;
+}
+
+.input-suffix {
+  position: absolute;
+  right: 16px;
+  color: #999;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.password-hint {
+  font-size: 12px;
+  color: #999;
+  margin: 4px 0 8px 0;
+  line-height: 1.4;
+}
+
+.password-input-wrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.password-input-wrapper input {
+  flex: 1;
+  padding-right: 45px;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: 18px;
+  padding: 5px;
+  color: #999;
+  transition: color 0.3s;
+}
+
+.toggle-password:hover {
+  color: #666;
+}
+
+/* Botón de submit */
+.submit-buttonR {
+  width: 50%;
+  padding: 16px;
+  background: #A6D885;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(125, 211, 192, 0.3);
+  font-family: 'Open Sans';
+  align-self: center;
+}
+
+.submit-button:hover {
+  background: #95c774;
+  box-shadow: 0 6px 20px rgba(166, 216, 133, 0.4);
+}
+
+.submit-button:active {
+  transform: translateY(0);
+}
+
+.form-group select {
+  padding: 12px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  font-family: 'Open Sans';
+  font-weight: 600;
+  color: #5E5951;
+  transition: border-color 0.3s;
+  background-color: #fff;
+  cursor: pointer;
+  border-bottom: 4px solid #e0e0e0;
+  height: 70px;
+}
+
+.form-group select:focus {
+  outline: none;
+  border-color: #8BC34A;
+  box-shadow: 0 0 0 2px rgba(139, 195, 74, 0.1);
+}
+
+/* Clase especial para el select de tipo de identificación */
+.form-group-select {
+  align-self: flex-end;
+}
+
+.form-group-select select {
+  width: 35%;
+  padding: 12px 8px;
+  text-align: center;
+  font-weight: 600;
+}
+
+.employee-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .employee-fields {
+    grid-template-columns: 1fr;
+  }
+
+  .register-title {
+    font-size: 35px;
+
+  }
+
+  .register-form-wrapper {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 480px) {
+  .register-title {
+    font-size: 20px;
+  }
+
+  .form-group input {
+    padding: 10px 14px;
+    font-size: 13px;
+  }
+
+  .submit-button {
+    width: 100%;
+    padding: 12px;
+  }
+}

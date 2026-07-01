@@ -1,0 +1,608 @@
+.appointment-view-shell {
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+    width: 100%;
+}
+
+.appointment-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+    flex-wrap: wrap;
+}
+
+.appointment-eyebrow {
+    text-transform: uppercase;
+    letter-spacing: 0.18em;
+    font-size: 11px;
+    color: #71B0C5;
+    font-weight: 700;
+    margin-bottom: 8px;
+}
+
+.appointment-title {
+    font-family: 'Open Sans', sans-serif;
+    font-size: 32px;
+    color: #2f2f2f;
+    line-height: 1.15;
+    margin-bottom: 10px;
+}
+
+.appointment-subtitle {
+    color: #666;
+    max-width: 760px;
+    line-height: 1.6;
+}
+
+.appointment-summary-row {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 14px;
+    min-width: 380px;
+}
+
+.summary-card,
+.appointment-card {
+    background: rgba(255, 255, 255, 0.82);
+    border: 1px solid rgba(113, 176, 197, 0.14);
+    box-shadow: 0 18px 40px rgba(0, 0, 0, 0.08);
+    backdrop-filter: blur(10px);
+}
+
+.summary-card {
+    border-radius: 18px;
+    padding: 16px 18px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.summary-label {
+    color: #73808a;
+    font-size: 13px;
+}
+
+.summary-value {
+    font-size: 23px;
+    color: #2f2f2f;
+}
+
+.summary-date {
+    text-transform: capitalize;
+}
+
+.appointment-alert {
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-weight: 600;
+}
+
+.appointment-alert.error {
+    background: rgba(230, 93, 93, 0.12);
+    color: #a64040;
+    border: 1px solid rgba(230, 93, 93, 0.25);
+}
+
+.appointment-alert.success {
+    background: rgba(166, 216, 133, 0.16);
+    color: #3b6f2d;
+    border: 1px solid rgba(166, 216, 133, 0.28);
+}
+
+.appointment-layout {
+    display: grid;
+    grid-template-columns: minmax(0, 1.55fr) minmax(320px, 0.95fr);
+    gap: 22px;
+}
+
+.appointment-main-column,
+.appointment-side-column {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.appointment-card {
+    border-radius: 22px;
+    padding: 22px;
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: flex-start;
+    margin-bottom: 18px;
+}
+
+.card-header.compact {
+    margin-bottom: 14px;
+}
+
+.card-header h3 {
+    font-size: 22px;
+    color: #2f2f2f;
+    margin-bottom: 6px;
+}
+
+.card-header p {
+    color: #6f6f6f;
+    line-height: 1.5;
+}
+
+.calendar-actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.calendar-month-label {
+    text-transform: capitalize;
+    color: #345;
+    font-weight: 700;
+    min-width: 170px;
+    text-align: center;
+}
+
+.calendar-nav-button,
+.ghost-button,
+.primary-button,
+.small-button {
+    border: none;
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+
+.calendar-nav-button {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #f0f6f8;
+    color: #44606b;
+    font-size: 18px;
+}
+
+.calendar-nav-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+    background: #dfeef3;
+}
+
+.calendar-nav-button:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.calendar-weekdays,
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, minmax(0, 1fr));
+    gap: 10px;
+}
+
+.calendar-weekdays {
+    margin-bottom: 12px;
+}
+
+.calendar-weekdays span {
+    text-align: center;
+    color: #7a8c97;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.calendar-empty-cell {
+    min-height: 90px;
+}
+
+.calendar-day {
+    min-height: 104px;
+    border: 1px solid rgba(113, 176, 197, 0.16);
+    border-radius: 16px;
+    background: #fff;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    align-items: flex-start;
+    text-align: left;
+}
+
+.calendar-day:hover:not(.disabled) {
+    transform: translateY(-2px);
+    border-color: rgba(113, 176, 197, 0.38);
+    box-shadow: 0 10px 22px rgba(113, 176, 197, 0.16);
+}
+
+.calendar-day.selected {
+    background: linear-gradient(145deg, #71B0C5, #8fc6d4);
+    color: white;
+    border-color: transparent;
+}
+
+.calendar-day.disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+    background: #f8f8f8;
+}
+
+.calendar-day-number {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.calendar-day-name {
+    text-transform: capitalize;
+    font-size: 12px;
+    font-weight: 600;
+}
+
+.calendar-day-availability {
+    font-size: 12px;
+    color: inherit;
+    opacity: 0.85;
+}
+
+.slot-hint {
+    display: inline-flex;
+    padding: 8px 12px;
+    border-radius: 999px;
+    background: rgba(166, 216, 133, 0.16);
+    color: #4a6f35;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.slot-list {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    gap: 12px;
+}
+
+.slot-button,
+.psychologist-card,
+.psychologist-mini-card,
+.selected-badge,
+.loading-box,
+.booking-limit-warning {
+    border-radius: 16px;
+}
+
+.slot-button {
+    padding: 14px 16px;
+    background: #f8fbfc;
+    border: 1px solid rgba(113, 176, 197, 0.18);
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    align-items: flex-start;
+}
+
+.slot-button.selected {
+    background: #71B0C5;
+    color: white;
+}
+
+.slot-hour {
+    font-size: 18px;
+    font-weight: 800;
+}
+
+.slot-note {
+    font-size: 12px;
+    opacity: 0.8;
+}
+
+.ghost-button {
+    padding: 11px 14px;
+    border-radius: 12px;
+    background: transparent;
+    border: 1px solid rgba(113, 176, 197, 0.34);
+    color: #57727d;
+}
+
+.ghost-button:hover {
+    transform: translateY(-1px);
+    background: rgba(113, 176, 197, 0.08);
+}
+
+.booking-limit-warning {
+    padding: 14px 16px;
+    background: rgba(255, 196, 0, 0.12);
+    border: 1px solid rgba(255, 196, 0, 0.22);
+    color: #8a6500;
+    margin-bottom: 16px;
+    font-weight: 600;
+}
+
+.form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.field-block {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 18px;
+}
+
+.field-block label {
+    font-weight: 700;
+    color: #475962;
+}
+
+.selected-badge,
+.loading-box {
+    padding: 14px 16px;
+    background: rgba(241, 245, 247, 0.92);
+    border: 1px solid rgba(113, 176, 197, 0.16);
+    color: #46535a;
+}
+
+.loading-box.warning {
+    background: rgba(255, 196, 0, 0.1);
+    border-color: rgba(255, 196, 0, 0.22);
+    color: #8a6500;
+}
+
+textarea {
+    width: 100%;
+    border-radius: 16px;
+    border: 1px solid rgba(113, 176, 197, 0.18);
+    padding: 14px 16px;
+    font-family: inherit;
+    font-size: 14px;
+    resize: vertical;
+    background: rgba(255, 255, 255, 0.95);
+}
+
+textarea:focus {
+    outline: none;
+    border-color: rgba(113, 176, 197, 0.45);
+    box-shadow: 0 0 0 3px rgba(113, 176, 197, 0.1);
+}
+
+.psychologist-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 12px;
+}
+
+.psychologist-card {
+    padding: 14px;
+    background: #fff;
+    border: 1px solid rgba(113, 176, 197, 0.16);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    text-align: left;
+}
+
+.psychologist-card.selected {
+    background: linear-gradient(145deg, rgba(113, 176, 197, 0.14), rgba(166, 216, 133, 0.14));
+    border-color: rgba(113, 176, 197, 0.45);
+}
+
+.psychologist-card strong,
+.psychologist-mini-card strong,
+.appointment-item h4 {
+    color: #2f2f2f;
+}
+
+.psychologist-card span,
+.psychologist-mini-card p,
+.appointment-item small,
+.appointment-notes,
+.appointment-item p {
+    color: #68767d;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
+}
+
+.primary-button {
+    padding: 14px 22px;
+    border-radius: 14px;
+    background: linear-gradient(135deg, #71B0C5, #5a95a8);
+    color: white;
+    font-weight: 800;
+    box-shadow: 0 12px 22px rgba(113, 176, 197, 0.22);
+}
+
+.primary-button:hover:not(:disabled) {
+    transform: translateY(-1px);
+}
+
+.primary-button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.appointment-list,
+.psychologist-mini-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.appointment-item,
+.psychologist-mini-card {
+    padding: 14px;
+    border-radius: 16px;
+    background: rgba(245, 248, 250, 0.96);
+    border: 1px solid rgba(113, 176, 197, 0.14);
+}
+
+.appointment-item-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    align-items: flex-start;
+    margin-bottom: 10px;
+}
+
+.status-pill {
+    display: inline-flex;
+    padding: 6px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.status-pill.active {
+    background: rgba(166, 216, 133, 0.16);
+    color: #477737;
+}
+
+.status-pill.cancelled {
+    background: rgba(230, 93, 93, 0.12);
+    color: #a64040;
+}
+
+.appointment-notes {
+    margin-top: 8px;
+    line-height: 1.5;
+}
+
+.appointment-item-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    flex-wrap: wrap;
+}
+
+.small-button {
+    padding: 10px 14px;
+    border-radius: 12px;
+    background: #71B0C5;
+    color: white;
+    font-weight: 700;
+}
+
+.small-button:hover {
+    transform: translateY(-1px);
+}
+
+.small-button.danger {
+    background: #e65d5d;
+}
+
+.availability-breakdown {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+    margin-bottom: 16px;
+}
+
+.availability-breakdown div {
+    padding: 12px;
+    border-radius: 14px;
+    background: white;
+    border: 1px solid rgba(113, 176, 197, 0.14);
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.availability-breakdown span {
+    color: #74838a;
+    font-size: 12px;
+}
+
+.availability-breakdown strong {
+    color: #2f2f2f;
+    font-size: 20px;
+}
+
+.psychologist-mini-card {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    align-items: center;
+}
+
+.psychologist-mini-card.available {
+    border-color: rgba(166, 216, 133, 0.28);
+}
+
+.psychologist-mini-card.busy {
+    opacity: 0.74;
+}
+
+.empty-state {
+    padding: 12px 0;
+    color: #71818a;
+    line-height: 1.6;
+}
+
+@media (max-width: 1200px) {
+    .appointment-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-summary-row {
+        min-width: 100%;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    .appointment-title {
+        font-size: 24px;
+    }
+
+    .appointment-summary-row,
+    .availability-breakdown,
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-grid,
+    .calendar-weekdays {
+        gap: 8px;
+    }
+
+    .calendar-day {
+        min-height: 92px;
+        padding: 10px;
+    }
+
+    .calendar-day-number {
+        font-size: 18px;
+    }
+
+    .card-header {
+        flex-direction: column;
+    }
+
+    .calendar-actions {
+        width: 100%;
+        justify-content: space-between;
+    }
+}
+
+@media (max-width: 540px) {
+    .appointment-card {
+        padding: 16px;
+    }
+
+    .slot-list,
+    .psychologist-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-item-header,
+    .psychologist-mini-card {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

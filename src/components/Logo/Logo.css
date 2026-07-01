@@ -1,0 +1,40 @@
+.logo-container {
+  position: absolute;
+  top: 30px;
+  left: 50px;
+  z-index: 10;
+  transition: transform 0.3s ease;
+}
+
+.logo-container:hover {
+  transform: scale(1.03);
+}
+
+.logo-image {
+  width: 200px;
+  height: auto;
+  /* filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.1)); */
+}
+
+/* Responsive */
+@media (max-width: 968px) {
+  .logo-container {
+    top: 20px;
+    left: 30px;
+  }
+
+  .logo-image {
+    width: 130px;
+  }
+}
+
+@media (max-width: 576px) {
+  .logo-container {
+    top: 15px;
+    left: 20px;
+  }
+
+  .logo-image {
+    width: 110px;
+  }
+}
