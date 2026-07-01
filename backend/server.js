@@ -17,7 +17,7 @@ const app = express();
 const allowedOrigins = [
     'http://localhost:3000',
     'http://localhost:5173',
-    'https://segura-mente-app-ga-8-220501096-aa.vercel.app',
+    'https://segura-mente-app-final.vercel.app',
     process.env.CLIENT_URL
 ].filter(Boolean);
 
