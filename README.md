@@ -32,13 +32,11 @@
 
 ## Descripcion de la Solucion
 
-**Segura-Mente** es una aplicacion web orientada a la gestion de salud mental, que permite a los usuarios registrarse, verificar su identidad por correo electronico y agendar citas con psicologos registrados en el sistema.
+**Segura-Mente** es una aplicacion web orientada a la gestion de salud mental, que permite a los usuarios registrarse y agendar citas con psicologos registrados en el sistema.
 
 ### Funcionalidades principales
 
 - Registro de usuarios con validaciones completas (datos personales, tipo de identificacion, fecha de nacimiento, telefono, direccion)
-- Verificacion de correo electronico mediante token unico
-- Recuperacion de contrasena por email
 - Autenticacion con JWT (JSON Web Tokens)
 - Control de sesion por inactividad con advertencia previa al cierre automatico
 - Dashboard diferenciado por tipo de usuario:
@@ -119,7 +117,6 @@ Usuario (Navegador)
 | mysql2 | 3.x | Conexion a MySQL |
 | bcryptjs | 3.x | Encriptacion de contrasenas |
 | jsonwebtoken | 9.x | Autenticacion JWT |
-| nodemailer | 7.x | Envio de correos electronicos |
 | express-validator | 7.x | Validacion de datos de entrada |
 | dotenv | 17.x | Gestion de variables de entorno |
 
@@ -142,7 +139,7 @@ segura-mente-app/
 |   +-- config/
 |   |   +-- database.js               # Conexion pool MySQL con SSL
 |   +-- controllers/
-|   |   +-- authController.js         # Registro, login, verificacion, recuperacion
+|   |   +-- authController.js         # Registro e inicio de sesion
 |   |   +-- userController.js         # CRUD de usuarios
 |   |   +-- appointmentController.js  # Gestion de citas
 |   +-- middleware/
@@ -155,7 +152,6 @@ segura-mente-app/
 |   |   +-- users.js                  # Rutas de usuarios
 |   |   +-- appointments.js           # Rutas de citas
 |   +-- utils/
-|   |   +-- email.js                  # Servicio de envio de correos
 |   +-- migrations/                   # Scripts de migracion de BD
 |   +-- database.sql                  # Script inicial de base de datos
 |   +-- server.js                     # Punto de entrada del servidor
@@ -182,9 +178,6 @@ segura-mente-app/
 |   |   +-- DashboardPage.jsx         # Dashboard principal
 |   |   +-- AppointmentPage.jsx       # Pagina de citas
 |   |   +-- RegisterPage.jsx
-|   |   +-- ForgotPasswordPage.jsx
-|   |   +-- ResetPasswordPage.jsx
-|   |   +-- VerificationPage.jsx
 |   +-- config/
 |   |   +-- api.js                    # URL base de la API
 |   +-- hooks/
@@ -247,9 +240,6 @@ JWT_SECRET=clave_secreta_larga_y_aleatoria
 JWT_EXPIRE=7d
 NODE_ENV=development
 CLIENT_URL=http://localhost:3000
-EMAIL_USER=tu_correo@gmail.com
-EMAIL_PASS=tu_contrasena_de_aplicacion_gmail
-EMAIL_FROM=tu_correo@gmail.com
 ```
 
 ### 4. Crear la base de datos
@@ -386,9 +376,6 @@ CREATE TABLE IF NOT EXISTS citas (
 | `JWT_SECRET` | Cadena aleatoria segura (minimo 32 caracteres) |
 | `JWT_EXPIRE` | `7d` |
 | `CLIENT_URL` | URL del frontend en Vercel (se completa despues) |
-| `EMAIL_USER` | Correo SMTP |
-| `EMAIL_PASS` | Contrasena de aplicacion SMTP |
-| `EMAIL_FROM` | Remitente de correos |
 
 5. Copiar la URL generada: `https://nombre-servicio.onrender.com`
 
@@ -435,10 +422,6 @@ Authorization: Bearer <token_jwt>
 |--------|------|-------------|------|
 | POST | `/api/auth/register` | Registro de usuario | No |
 | POST | `/api/auth/login` | Inicio de sesion | No |
-| GET | `/api/auth/verify` | Verificacion de email por token | No |
-| POST | `/api/auth/resend-verification` | Reenviar email de verificacion | No |
-| POST | `/api/auth/forgot-password` | Solicitar recuperacion de contrasena | No |
-| POST | `/api/auth/reset-password` | Restablecer contrasena | No |
 
 ### Usuarios
 
