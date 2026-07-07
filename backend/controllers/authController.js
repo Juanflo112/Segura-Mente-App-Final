@@ -79,35 +79,27 @@ exports.register = async (req, res) => {
         const result = await User.create(userData);
         console.log('Usuario creado en la base de datos:', result.email);
 
-        // 8. Enviar email de verificación (intentar)
-        let emailSent = false;
+        // 8. Auto-verificar usuario y responder de inmediato
         try {
-            await sendVerificationEmail(email, nombreUsuario, verificationToken);
-            console.log('Email de verificación enviado a:', email);
-            emailSent = true;
-        } catch (emailError) {
-            console.error('Error al enviar email:', emailError.message);
-            // Auto-verificar usuario si el email falla (workaround para Render free tier)
-            console.log('Auto-verificando usuario debido a error de email...');
-            try {
-                await User.verifyByEmail(email);
-                console.log('Usuario auto-verificado exitosamente');
-            } catch (verifyError) {
-                console.error('Error al auto-verificar:', verifyError.message);
-            }
+            await User.verifyByEmail(email);
+        } catch (verifyError) {
+            console.error('Error al auto-verificar:', verifyError.message);
         }
 
-        // 9. Respuesta exitosa
+        // 9. Respuesta exitosa inmediata
         res.status(201).json({
             success: true,
-            message: emailSent
-                ? 'Usuario registrado exitosamente. Por favor verifica tu correo electrónico.'
-                : 'Usuario registrado exitosamente. Ya puedes iniciar sesión.',
+            message: 'Usuario registrado exitosamente. Ya puedes iniciar sesión.',
             data: {
                 email: result.email,
                 nombreUsuario
             }
         });
+
+        // 10. Intentar enviar email en segundo plano (no bloquea la respuesta)
+        sendVerificationEmail(email, nombreUsuario, verificationToken)
+            .then(() => console.log('Email enviado a:', email))
+            .catch((emailError) => console.error('Error al enviar email (no critico):', emailError.message));
 
     } catch (error) {
         console.error('Error en registro:', error);
