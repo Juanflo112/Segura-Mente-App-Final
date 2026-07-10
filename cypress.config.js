@@ -60,9 +60,14 @@ module.exports = defineConfig({
       testUser: {
         email: 'cliente.prueba@correo.com',
         password: 'Admin1234*',
+        confirmPassword: 'Admin1234*',
         nombreUsuario: 'ClientePrueba',
         tipoIdentificacion: 'CC',
-        identificacion: '1000000004'
+        identificacion: '1000000004',
+        fechaNacimiento: '1995-06-20',
+        telefono: '3004000004',
+        direccion: 'Calle 45 No. 30-10',
+        tipoUsuario: 'Cliente'
       },
 
       adminUser: {
