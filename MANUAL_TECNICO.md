@@ -1,1127 +1,900 @@
-# Manual Técnico - Segura Mente App
+# Manual Tecnico - Segura-Mente App
 
-##  Información del Documento
-
-**Proyecto:** Segura Mente - Sistema de Gestión de Usuarios  
-**Versión:** 1.0.0  
-**Fecha:** 12/01/2026
-**Estudiante:** Juan Pablo Mejia Vargas
-**Evidencia:** GA8-220501096-AA1-EV02 módulos integrados 
-**Tipo:** Manual Técnico para Desarrolladores y Administradores
+**Proyecto:** Segura-Mente - Sistema de Gestion de Usuarios y Agendamiento de Citas  
+**Version:** 2.0.0  
+**Fecha:** Julio 2026  
+**Autor:** Juan Pablo Mejia Vargas  
+**Tipo:** Manual Tecnico para Desarrolladores
 
 ---
 
-##  Índice
+## Tabla de Contenidos
 
-. [Arquitectura del Sistema](#arquitectura-del-sistema)
-. [Instalación y Configuración Local](#instalación-y-configuración-local)
-. [Estructura del Proyecto](#estructura-del-proyecto)
-. [Tecnologías Utilizadas](#tecnologías-utilizadas)
-. [Base de Datos](#base-de-datos)
-. [API REST - Endpoints](#api-rest---endpoints)
-7. [Autenticación y Seguridad](#autenticación-y-seguridad)
-. [Deployment](#deployment)
-. [Mantenimiento y Troubleshooting](#mantenimiento-y-troubleshooting)
-0. [Escalabilidad y Mejoras Futuras](#escalabilidad-y-mejoras-futuras)
-
----
-
-## . Arquitectura del Sistema
-
-### . Diagrama de Arquitectura
-
-```
-┌─────────────────────────────────────────────────────────────┐
-│                         USUARIO FINAL                        │
-│                      (Navegador Web)                         │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         │ HTTPS
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                    FRONTEND (React)                          │
-│                  Vercel Cloud Platform                       │
-│  URL: segura-mente-app-frontend.vercel.app                   │
-│                                                              │
-│  - React ..0                                              │
-│  - React Router 7.0.                                       │
-│  - Axios para peticiones HTTP                                │
-│  - LocalStorage para JWT                                     │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         │ REST API (HTTPS)
-                         │ CORS Enabled
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                 BACKEND (Node.js + Express)                  │
-│                   Render Cloud Platform                      │
-│  URL: segura-mente-app-ga-000-aa-ev0.onrender.com  │
-│                                                              │
-│  - Express ..                                             │
-│  - JWT Authentication                                        │
-│  - Bcrypt Password Hashing                                   │
-│  - MySQL Driver                                             │
-│  - Nodemailer (Email)                                        │
-└────────────────────────┬────────────────────────────────────┘
-                         │
-                         │ MySQL Connection (SSL)
-                         │
-┌────────────────────────▼────────────────────────────────────┐
-│                  BASE DE DATOS (MySQL .0)                   │
-│                   Railway Cloud Platform                     │
-│  Host: caboose.proxy.rlwy.net:                          │
-│                                                              │
-│  - Tabla: usuarios                                           │
-│  - Índices optimizados                                       │
-│  - SSL Required                                              │
-│  - Public Networking Enabled                                 │
-└──────────────────────────────────────────────────────────────┘
-```
-
-### . Patrón de Diseño
-
-**Arquitectura:** Modelo-Vista-Controlador (MVC) Distribuido
-
-- **Modelo (Model):** `backend/models/User.js` - Lógica de datos y consultas SQL
-- **Vista (View):** `src/components/**/*.jsx` - Componentes React
-- **Controlador (Controller):** `backend/controllers/**/*.js` - Lógica de negocio
-
-**Separación de Responsabilidades:**
-- Frontend: Presentación e interacción con usuario
-- Backend: Lógica de negocio, validaciones, autenticación
-- Database: Persistencia y almacenamiento
+1. [Arquitectura del Sistema](#1-arquitectura-del-sistema)
+2. [Patron de Diseno y Estructura del Codigo](#2-patron-de-diseno-y-estructura-del-codigo)
+3. [Tecnologias Utilizadas](#3-tecnologias-utilizadas)
+4. [Estructura del Proyecto](#4-estructura-del-proyecto)
+5. [Documentacion del Codigo - Backend](#5-documentacion-del-codigo---backend)
+6. [Documentacion del Codigo - Frontend](#6-documentacion-del-codigo---frontend)
+7. [Base de Datos](#7-base-de-datos)
+8. [API REST - Endpoints](#8-api-rest---endpoints)
+9. [Autenticacion y Seguridad](#9-autenticacion-y-seguridad)
+10. [Variables de Entorno](#10-variables-de-entorno)
+11. [Despliegue en Produccion](#11-despliegue-en-produccion)
+12. [Mantenimiento y Solucion de Problemas](#12-mantenimiento-y-solucion-de-problemas)
 
 ---
 
-## . Instalación y Configuración Local
+## 1. Arquitectura del Sistema
 
-### . Requisitos Previos
+### 1.1 Vision General
 
-```bash
-Node.js: v.0.0 o superior
-npm: v.0.0 o superior
-MySQL: v.0 o superior
-Git: v.0.0 o superior
+Segura-Mente implementa una arquitectura de **tres capas distribuidas en la nube**, donde cada capa esta alojada en un servicio independiente y se comunica con las demas mediante protocolos estandar.
+
+```
++------------------+        HTTPS / REST        +-------------------+
+|   CAPA           |  ------------------------> |   CAPA            |
+|   PRESENTACION   |  <----- JSON Response ----- |   NEGOCIO         |
+|                  |                            |                   |
+|  React SPA       |                            |  Node.js Express  |
+|  Vercel CDN      |                            |  Render           |
++------------------+                            +-------------------+
+                                                         |
+                                                MySQL + SSL
+                                                         |
+                                                +-------------------+
+                                                |   CAPA            |
+                                                |   DATOS           |
+                                                |                   |
+                                                |  MySQL 8.0        |
+                                                |  Railway          |
+                                                +-------------------+
 ```
 
-### . Clonar el Repositorio
+### 1.2 Descripcion de Capas
 
-```bash
-# Clonar desde GitHub
-git clone https://github.com/Juanflo/segura-mente-app-GA-000-AA-EV0.git
+**Capa de Presentacion (Frontend)**
+- Tecnologia: React 19 (Create React App)
+- Alojamiento: Vercel (CDN global)
+- Responsabilidad: Renderizar la interfaz, gestionar el estado local, consumir la API REST
+- Comunicacion: Peticiones HTTP con token JWT en el header `Authorization`
+- URL: `https://segura-mente-app-final.vercel.app`
 
-# Navegar al directorio
-cd segura-mente-app-GA-000-AA-EV0
+**Capa de Negocio (Backend)**
+- Tecnologia: Node.js 18 con Express 5
+- Alojamiento: Render (servidor Linux)
+- Responsabilidad: Validar datos, aplicar reglas de negocio, gestionar autenticacion, consultar la BD
+- Comunicacion: Expone API REST en HTTPS, acepta origenes CORS configurados
+- URL: `https://segura-mente-app-ga8-220501096-aa1-ev02.onrender.com`
+
+**Capa de Datos (Base de Datos)**
+- Tecnologia: MySQL 8.0
+- Alojamiento: Railway (contenedor Linux)
+- Responsabilidad: Persistir y gestionar los datos del sistema
+- Comunicacion: Conexion TCP/IP cifrada con SSL desde el backend
+- Host: `caboose.proxy.rlwy.net`
+
+### 1.3 Flujo de una Peticion Tipica
+
 ```
-
-### . Configuración del Backend
-
-```bash
-# Navegar a la carpeta backend
-cd backend
-
-# Instalar dependencias
-npm install
-
-# Crear archivo .env
-# Copiar el contenido siguiente:
-```
-
-**Archivo `backend/.env`:**
-```env
-# Configuración del servidor
-NODE_ENV=development
-PORT=000
-
-# Configuración de la base de datos
-DB_HOST=localhost
-DB_PORT=0
-DB_USER=root
-DB_PASSWORD=tu_password_mysql
-DB_NAME=seguramente_db
-DB_SSL=false
-
-# JWT Secret (generar uno aleatorio para producción)
-JWT_SECRET=tu_clave_secreta_super_segura_aqui
-JWT_EXPIRE=7d
-
-# URL del Frontend (para CORS)
-CLIENT_URL=http://localhost:000
-
-# Configuración de Email (opcional en desarrollo)
-EMAIL_HOST=smtp.gmail.com
-EMAIL_PORT=7
-EMAIL_SECURE=false
-EMAIL_USER=tu_email@gmail.com
-EMAIL_PASS=tu_app_password
-EMAIL_FROM=noreply@seguramente.com
-```
-
-### . Configuración de la Base de Datos Local
-
-```bash
-# Conectar a MySQL
-mysql -u root -p
-
-# Crear base de datos
-CREATE DATABASE seguramente_db CHARACTER SET utfmb COLLATE utfmb_unicode_ci;
-
-# Usar la base de datos
-USE seguramente_db;
-
-# Ejecutar el script de creación de tablas
-source backend/database.sql;
-
-# Ejecutar migraciones
-source backend/migrations/add_employee_fields.sql;
-source backend/migrations/add_password_reset_fields.sql;
-```
-
-### . Iniciar el Backend
-
-```bash
-# Desde la carpeta backend
-npm start
-
-# Deberías ver:
-# Server running on port 000
-# MySQL conectado exitosamente
-```
-
-### . Configuración del Frontend
-
-```bash
-# Volver a la raíz del proyecto
-cd ..
-
-# Instalar dependencias del frontend
-npm install
-
-# Crear archivo .env en la raíz
-# Copiar el contenido siguiente:
-```
-
-**Archivo `.env` (raíz del proyecto):**
-```env
-REACT_APP_API_URL=http://localhost:000/api
-```
-
-### .7 Iniciar el Frontend
-
-```bash
-# Desde la raíz del proyecto
-npm start
-
-# Se abrirá automáticamente en http://localhost:000
+1. Usuario interactua con la interfaz React (clic, formulario)
+2. Componente React llama a fetch() con la URL del backend
+3. Header incluye: Content-Type: application/json
+                   Authorization: Bearer <token_jwt>
+4. Express recibe la peticion en server.js
+5. CORS verifica que el origen este permitido
+6. Middleware ValidationMiddleware verifica el JWT
+7. Router dirige al controlador correspondiente
+8. Controlador ejecuta logica de negocio
+9. Modelo ejecuta consulta SQL en la BD via pool mysql2
+10. BD retorna resultados al modelo
+11. Modelo retorna datos al controlador
+12. Controlador envia respuesta JSON al frontend
+13. React actualiza el estado y re-renderiza el componente
 ```
 
 ---
 
-## . Estructura del Proyecto
+## 2. Patron de Diseno y Estructura del Codigo
 
-### . Estructura Completa
+### 2.1 Patron MVC en el Backend
+
+El backend implementa el patron **Modelo-Vista-Controlador** adaptado a una API REST:
+
+| Capa | Archivo | Responsabilidad |
+|------|---------|----------------|
+| **Modelo** | `backend/models/User.js` | Consultas SQL sobre la tabla `usuarios` |
+| **Modelo** | `backend/models/Appointment.js` | Consultas SQL sobre la tabla `citas` |
+| **Controlador** | `backend/controllers/authController.js` | Logica de registro e inicio de sesion |
+| **Controlador** | `backend/controllers/userController.js` | Logica CRUD de usuarios |
+| **Controlador** | `backend/controllers/appointmentController.js` | Logica de gestion de citas |
+| **Ruta** | `backend/routes/auth.js` | Mapeo de endpoints de autenticacion |
+| **Ruta** | `backend/routes/users.js` | Mapeo de endpoints de usuarios |
+| **Ruta** | `backend/routes/appointments.js` | Mapeo de endpoints de citas |
+
+> En una API REST no existe "Vista" tradicional. Los controladores retornan JSON en lugar de HTML.
+
+### 2.2 Principios Aplicados
+
+- **Separacion de responsabilidades:** Cada archivo tiene una unica funcion (rutas, controladores, modelos)
+- **Middleware en cadena:** Las peticiones pasan por CORS > autenticacion JWT > validacion de datos > controlador
+- **Pool de conexiones:** La BD usa un pool MySQL en lugar de conexiones individuales para mejor rendimiento
+- **Variables de entorno:** Toda configuracion sensible se gestiona con dotenv; ningun secreto esta en el codigo
+
+---
+
+## 3. Tecnologias Utilizadas
+
+### 3.1 Frontend
+
+| Tecnologia | Version | Funcion en el Proyecto |
+|-----------|---------|----------------------|
+| React | 19.2.0 | Framework principal de la interfaz |
+| React Router DOM | 7.10.1 | Manejo de rutas SPA (sin recarga de pagina) |
+| React Scripts (CRA) | 5.0.1 | Bundler webpack, servidor de desarrollo, build |
+| Web Vitals | 2.1.4 | Medicion de metricas de rendimiento |
+| CSS3 | - | Estilos personalizados por componente |
+| Open Sans | - | Tipografia principal (Google Fonts) |
+
+### 3.2 Backend
+
+| Tecnologia | Version | Funcion en el Proyecto |
+|-----------|---------|----------------------|
+| Node.js | 18+ | Entorno de ejecucion JavaScript en servidor |
+| Express | 5.2.1 | Framework HTTP: rutas, middleware, respuestas |
+| mysql2 | 3.16.0 | Driver MySQL con soporte para Promises y pool |
+| bcryptjs | 3.0.3 | Hash y verificacion de contrasenas |
+| jsonwebtoken | 9.0.3 | Generacion y verificacion de tokens JWT |
+| express-validator | 7.3.1 | Validacion y sanitizacion de datos de entrada |
+| cors | 2.8.5 | Middleware para control de origenes permitidos |
+| dotenv | 17.2.3 | Carga de variables de entorno desde .env |
+| nodemailer | 7.0.11 | Cliente SMTP para envio de correos |
+
+### 3.3 Infraestructura y Herramientas
+
+| Herramienta | Uso |
+|------------|-----|
+| Vercel | Hosting del frontend con CDN y auto-deploy |
+| Render | Hosting del backend Node.js con auto-deploy |
+| Railway | MySQL 8.0 gestionado en la nube |
+| GitHub | Control de versiones y disparador de CI/CD |
+| Git | Version control local |
+
+---
+
+## 4. Estructura del Proyecto
 
 ```
 segura-mente-app/
-│
-├── backend/                          # Servidor Node.js + Express
-│   ├── config/
-│   │   └── database.js              # Configuración MySQL
-│   ├── controllers/
-│   │   ├── authController.js        # Lógica de autenticación
-│   │   └── userController.js        # Lógica de gestión usuarios
-│   ├── middleware/
-│   │   └── validation.js            # Validaciones de entrada
-│   ├── migrations/
-│   │   ├── add_employee_fields.sql  # Migración campos empleado
-│   │   └── add_password_reset_fields.sql
-│   ├── models/
-│   │   └── User.js                  # Modelo de usuario
-│   ├── routes/
-│   │   ├── auth.js                  # Rutas de autenticación
-│   │   └── users.js                 # Rutas de usuarios
-│   ├── utils/
-│   │   └── email.js                 # Utilidad envío emails
-│   ├── database.sql                 # Script inicial DB
-│   ├── server.js                    # Punto de entrada backend
-│   ├── package.json                 # Dependencias backend
-│   └── .env                         # Variables de entorno
-│
-├── src/                             # Código fuente React
-│   ├── components/                  # Componentes reutilizables
-│   │   ├── Dashboard/
-│   │   │   ├── Sidebar.jsx          # Menú lateral
-│   │   │   ├── UserList.jsx         # Lista de usuarios
-│   │   │   ├── UserEditForm.jsx     # Formulario edición
-│   │   │   └── UserRegisterForm.jsx # Formulario registro admin
-│   │   ├── Login/
-│   │   │   ├── Login.jsx            # Layout login
-│   │   │   └── LoginForm.jsx        # Formulario login
-│   │   ├── Register/
-│   │   │   ├── RegisterForm.jsx     # Formulario registro
-│   │   │   ├── SuccessMessage.jsx   # Mensaje éxito
-│   │   │   └── VerificationMessage.jsx
-│   │   ├── Logo/
-│   │   │   └── Logo.jsx             # Logo de la app
-│   │   ├── ProtectedRoute.jsx       # HOC rutas protegidas
-│   │   └── SessionWarning.jsx       # Advertencia timeout
-│   ├── hooks/
-│   │   └── useSessionTimeout.js     # Hook gestión sesión
-│   ├── pages/                       # Páginas principales
-│   │   ├── DashboardPage.jsx        # Página dashboard
-│   │   ├── RegisterPage.jsx         # Página registro
-│   │   ├── SuccessPage.jsx          # Página éxito
-│   │   └── VerificationPage.jsx     # Página verificación
-│   ├── config/
-│   │   └── api.js                   # Configuración API
-│   ├── App.jsx                      # Componente principal
-│   ├── main.jsx                     # Punto de entrada React
-│   └── index.css                    # Estilos globales
-│
-├── public/                          # Archivos públicos estáticos
-│   ├── index.html
-│   ├── manifest.json
-│   └── robots.txt
-│
-├── build/                           # Build de producción (generado)
-│
-├── package.json                     # Dependencias frontend
-├── README.md                        # Documentación principal
-├── DEPLOYMENT.md                    # Guía de despliegue
-├── DEPLOYMENT_URLS.md               # URLs de producción
-├── DOCUMENTACION_MODULOS.md         # Este documento
-├── DOCUMENTACION_PRUEBAS.md         # Documentación de pruebas
-└── MANUAL_TECNICO.md                # Manual técnico
-```
-
-### . Archivos Clave
-
-| Archivo | Propósito |
-|---------|-----------|
-| `backend/server.js` | Punto de entrada del backend, configura Express |
-| `backend/config/database.js` | Pool de conexiones MySQL |
-| `backend/models/User.js` | Operaciones CRUD de usuarios |
-| `src/App.jsx` | Configuración de rutas y layout principal |
-| `src/config/api.js` | Base URL del API centralizada |
-| `src/hooks/useSessionTimeout.js` | Lógica de timeout de sesión |
-
----
-
-## . Tecnologías Utilizadas
-
-### . Frontend
-
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| React | ..0 | Framework UI |
-| React Router DOM | 7.0. | Navegación SPA |
-| Axios | .7. | Cliente HTTP |
-| CSS | - | Estilos |
-
-**Dependencias de Desarrollo:**
-```json
-{
-  "@testing-library/react": "^.0.",
-  "@testing-library/jest-dom": "^.7.0",
-  "react-scripts": ".0."
-}
-```
-
-### . Backend
-
-| Tecnología | Versión | Propósito |
-|------------|---------|-----------|
-| Node.js | .x | Runtime JavaScript |
-| Express | .. | Framework web |
-| MySQL | .. | Driver MySQL |
-| bcryptjs | .0. | Hash de contraseñas |
-| jsonwebtoken | .0. | Autenticación JWT |
-| cors | .0.0 | Manejo CORS |
-| nodemailer | 7.0. | Envío de emails |
-| dotenv | ..0 | Variables de entorno |
-
-### . Base de Datos
-
-| Componente | Detalle |
-|------------|---------|
-| Motor | MySQL .0 |
-| Charset | utfmb |
-| Collation | utfmb_unicode_ci |
-| Storage Engine | InnoDB |
-| Transacciones | Soportadas |
-
----
-
-## . Base de Datos
-
-### . Diagrama Entidad-Relación
-
-```
-┌──────────────────────────────────────────────────────────┐
-│                      USUARIOS                             │
-├──────────────────────────────────────────────────────────┤
-│ PK  email                    VARCHAR(0)                 │
-│     nombre_usuario           VARCHAR(00)  UNIQUE         │
-│     tipo_identificacion      VARCHAR()                   │
-│     identificacion           VARCHAR(0)   UNIQUE         │
-│     fecha_nacimiento         DATE                         │
-│     telefono                 VARCHAR(0)                  │
-│     direccion                VARCHAR()                 │
-│     tipo_usuario             VARCHAR(0)   DEFAULT Cliente│
-│     formacion_profesional    VARCHAR()  NULL           │
-│     tarjeta_profesional      VARCHAR(00)  NULL           │
-│     password                 VARCHAR()                 │
-│     verificado               BOOLEAN       DEFAULT FALSE  │
-│     token_verificacion       VARCHAR()  NULL           │
-│     token_recuperacion       VARCHAR()  NULL           │
-│     token_recuperacion_expira DATETIME     NULL           │
-│     fecha_registro           TIMESTAMP     AUTO           │
-│     ultimo_acceso            TIMESTAMP     NULL           │
-└──────────────────────────────────────────────────────────┘
-```
-
-### . Script de Creación
-
-```sql
-CREATE DATABASE IF NOT EXISTS seguramente_db 
-CHARACTER SET utfmb COLLATE utfmb_unicode_ci;
-
-USE seguramente_db;
-
-CREATE TABLE usuarios (
-    email VARCHAR(0) PRIMARY KEY,
-    nombre_usuario VARCHAR(00) NOT NULL UNIQUE,
-    tipo_identificacion VARCHAR() NOT NULL,
-    identificacion VARCHAR(0) NOT NULL UNIQUE,
-    fecha_nacimiento DATE NOT NULL,
-    telefono VARCHAR(0) NOT NULL,
-    direccion VARCHAR() NOT NULL,
-    tipo_usuario VARCHAR(0) DEFAULT 'Cliente',
-    formacion_profesional VARCHAR(),
-    tarjeta_profesional VARCHAR(00),
-    password VARCHAR() NOT NULL,
-    verificado BOOLEAN DEFAULT FALSE,
-    token_verificacion VARCHAR(),
-    token_recuperacion VARCHAR() DEFAULT NULL,
-    token_recuperacion_expira DATETIME DEFAULT NULL,
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    ultimo_acceso TIMESTAMP NULL
-);
-
--- Índices para optimización
-CREATE INDEX idx_nombre_usuario ON usuarios(nombre_usuario);
-CREATE INDEX idx_identificacion ON usuarios(identificacion);
-CREATE INDEX idx_token_verificacion ON usuarios(token_verificacion);
-CREATE INDEX idx_token_recuperacion ON usuarios(token_recuperacion);
-CREATE INDEX idx_fecha_registro ON usuarios(fecha_registro);
-```
-
-### . Migraciones
-
-**Migración : Campos de Empleado**
-```sql
--- backend/migrations/add_employee_fields.sql
-ALTER TABLE usuarios 
-ADD COLUMN tipo_usuario VARCHAR(0) DEFAULT 'Cliente' AFTER direccion;
-
-ALTER TABLE usuarios 
-ADD COLUMN formacion_profesional VARCHAR() AFTER tipo_usuario;
-
-ALTER TABLE usuarios 
-ADD COLUMN tarjeta_profesional VARCHAR(00) AFTER formacion_profesional;
-```
-
-**Migración : Password Reset**
-```sql
--- backend/migrations/add_password_reset_fields.sql
-ALTER TABLE usuarios 
-ADD COLUMN token_recuperacion VARCHAR() DEFAULT NULL AFTER token_verificacion;
-
-ALTER TABLE usuarios 
-ADD COLUMN token_recuperacion_expira DATETIME DEFAULT NULL AFTER token_recuperacion;
-
-CREATE INDEX idx_token_recuperacion ON usuarios(token_recuperacion);
-```
-
-### . Consultas Comunes
-
-**Crear Usuario:**
-```sql
-INSERT INTO usuarios (
-    email, nombre_usuario, tipo_identificacion, identificacion,
-    fecha_nacimiento, telefono, direccion, password, 
-    token_verificacion, verificado
-) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);
-```
-
-**Listar Usuarios:**
-```sql
-SELECT email, nombre_usuario, tipo_identificacion, identificacion,
-       fecha_nacimiento, telefono, direccion, tipo_usuario,
-       formacion_profesional, tarjeta_profesional,
-       verificado, fecha_registro, ultimo_acceso
-FROM usuarios
-ORDER BY fecha_registro DESC;
-```
-
-**Actualizar Usuario:**
-```sql
-UPDATE usuarios 
-SET nombre_usuario = ?,
-    tipo_identificacion = ?,
-    identificacion = ?,
-    fecha_nacimiento = ?,
-    telefono = ?,
-    direccion = ?,
-    tipo_usuario = ?,
-    formacion_profesional = ?,
-    tarjeta_profesional = ?
-WHERE email = ?;
-```
-
-**Eliminar Usuario:**
-```sql
-DELETE FROM usuarios WHERE email = ?;
+|
++-- backend/                              # Servidor Node.js + Express
+|   |
+|   +-- config/
+|   |   +-- database.js                   # Pool de conexiones MySQL con SSL
+|   |
+|   +-- controllers/
+|   |   +-- authController.js             # Registro e inicio de sesion
+|   |   +-- userController.js             # CRUD de usuarios
+|   |   +-- appointmentController.js      # Gestion de citas
+|   |
+|   +-- middleware/
+|   |   +-- validation.js                 # JWT auth + reglas express-validator
+|   |
+|   +-- migrations/
+|   |   +-- add_employee_fields.sql       # Campos tipo_usuario, formacion, tarjeta
+|   |   +-- add_password_reset_fields.sql # Campos token recuperacion
+|   |   +-- create_appointments_table.sql # Tabla citas original
+|   |
+|   +-- models/
+|   |   +-- User.js                       # Metodos estaticos de consulta a usuarios
+|   |   +-- Appointment.js                # Metodos estaticos de consulta a citas
+|   |
+|   +-- routes/
+|   |   +-- auth.js                       # POST /register, POST /login
+|   |   +-- users.js                      # GET, POST, PUT, DELETE /users
+|   |   +-- appointments.js               # CRUD + cancelacion de citas
+|   |
+|   +-- scripts/
+|   |   +-- migrateAppointments.js        # Script migracion de datos
+|   |
+|   +-- utils/
+|   |   +-- email.js                      # Transporter nodemailer
+|   |
+|   +-- database.sql                      # DDL inicial completo
+|   +-- server.js                         # Punto de entrada: Express, CORS, rutas
+|   +-- package.json
+|   +-- render.yaml                       # Configuracion de despliegue en Render
+|   +-- Dockerfile                        # Imagen Docker del backend
+|
++-- src/                                  # Codigo fuente React
+|   |
+|   +-- components/
+|   |   |
+|   |   +-- Appointments/
+|   |   |   +-- AppointmentScheduler.jsx  # Calendario de citas (cliente)
+|   |   |   +-- AppointmentScheduler.css
+|   |   |   +-- PsychologistAppointments.jsx  # Panel de citas (psicologo)
+|   |   |   +-- PsychologistAppointments.css
+|   |   |
+|   |   +-- Dashboard/
+|   |   |   +-- Sidebar.jsx               # Menu lateral con navegacion por rol
+|   |   |   +-- Sidebar.css
+|   |   |   +-- UserList.jsx              # Tabla de usuarios (admin)
+|   |   |   +-- UserList.css
+|   |   |   +-- UserEditForm.jsx          # Formulario edicion de usuario
+|   |   |   +-- UserEditForm.css
+|   |   |   +-- UserRegisterForm.jsx      # Formulario registro admin
+|   |   |   +-- UserRegisterForm.css
+|   |   |
+|   |   +-- Login/
+|   |   |   +-- Login.jsx                 # Layout de dos columnas
+|   |   |   +-- Login.css
+|   |   |   +-- LoginForm.jsx             # Formulario de autenticacion
+|   |   |
+|   |   +-- Logo/
+|   |   |   +-- Logo.jsx
+|   |   |   +-- Logo.css
+|   |   |
+|   |   +-- Register/
+|   |   |   +-- RegisterForm.jsx          # Formulario de registro publico
+|   |   |   +-- RegisterForm.css
+|   |   |
+|   |   +-- ProtectedRoute.jsx            # HOC que verifica token JWT
+|   |   +-- SessionWarning.jsx            # Modal de advertencia de inactividad
+|   |   +-- SessionWarning.css
+|   |
+|   +-- config/
+|   |   +-- api.js                        # URL base del backend (REACT_APP_API_URL)
+|   |
+|   +-- hooks/
+|   |   +-- useSessionTimeout.js          # Hook: temporizador de inactividad
+|   |
+|   +-- pages/
+|   |   +-- AppointmentPage.jsx           # /citas: muestra scheduler o panel segun rol
+|   |   +-- AppointmentPage.css
+|   |   +-- DashboardPage.jsx             # /dashboard: vista principal post-login
+|   |   +-- DashboardPage.css
+|   |   +-- ForgotPasswordPage.jsx        # /forgot-password
+|   |   +-- RegisterPage.jsx              # /registro
+|   |   +-- RegisterPage.css
+|   |   +-- ResetPasswordPage.jsx         # /reset-password
+|   |   +-- SuccessPage.jsx               # /success
+|   |   +-- VerificationPage.jsx          # /verificacion
+|   |   +-- VerifyEmailPage.jsx           # /verify
+|   |
+|   +-- assets/
+|   |   +-- icons/                        # SVG de iconos de navegacion
+|   |   +-- images/                       # Logo, patron header, imagen login
+|   |
+|   +-- App.jsx                           # Router principal con todas las rutas
+|   +-- App.css
+|   +-- index.js                          # Punto de entrada React DOM
+|   +-- index.css                         # Estilos globales y reset
+|   +-- main.jsx                          # Alternativa de entrada (Vite compatible)
+|
++-- public/
+|   +-- index.html                        # Template HTML principal
+|   +-- manifest.json
+|   +-- robots.txt
+|
++-- cypress/                              # Pruebas E2E con Cypress
+|   +-- e2e/                              # Casos de prueba organizados por modulo
+|   +-- support/
+|
++-- vercel.json                           # Config SPA: reescritura de rutas
++-- docker-compose.yml                    # Configuracion Docker local
++-- package.json                          # Dependencias frontend
++-- README.md                             # Documentacion principal del proyecto
++-- MANUAL_TECNICO.md                     # Este documento
 ```
 
 ---
 
-## . API REST - Endpoints
+## 5. Documentacion del Codigo - Backend
 
-### . Autenticación
+### 5.1 server.js - Punto de Entrada
 
-#### POST /api/auth/register
+El archivo `server.js` es el punto de entrada del servidor. Sus responsabilidades son:
 
-**Descripción:** Registrar nuevo usuario
+1. Cargar las variables de entorno con `dotenv`
+2. Crear la aplicacion Express
+3. Configurar los middlewares globales: CORS, body-parser
+4. Montar los routers en sus rutas base
+5. Registrar el manejador de errores 404 y el manejador global de excepciones
+6. Iniciar el servidor en el puerto definido
 
-**Headers:**
+**Configuracion de CORS:**
 ```
-Content-Type: application/json
-```
-
-**Body:**
-```json
-{
-  "nombreUsuario": "Juan Pérez",
-  "tipoIdentificacion": "CC",
-  "identificacion": "70",
-  "fechaNacimiento": "0-0-",
-  "telefono": "007",
-  "direccion": "Calle  #-7",
-  "email": "juan@example.com",
-  "password": "Password!"
-}
+Origenes permitidos:
+- http://localhost:3000    (desarrollo local)
+- http://localhost:5173    (Vite desarrollo)
+- https://segura-mente-app-final.vercel.app
+- process.env.CLIENT_URL   (configurable por variable de entorno)
 ```
 
-**Response 0:**
-```json
-{
-  "success": true,
-  "message": "Usuario registrado exitosamente",
-  "data": {
-    "email": "juan@example.com",
-    "nombreUsuario": "Juan Pérez"
-  }
-}
+**Rutas montadas:**
+```
+/api/auth         -> routes/auth.js
+/api/users        -> routes/users.js
+/api/appointments -> routes/appointments.js
 ```
 
 ---
 
-#### POST /api/auth/login
+### 5.2 config/database.js - Conexion a MySQL
 
-**Descripción:** Iniciar sesión
+Crea y exporta un **pool de conexiones** MySQL usando `mysql2/promise`. El pool permite reutilizar conexiones en lugar de abrir una nueva por cada peticion, mejorando el rendimiento.
 
-**Headers:**
+**Parametros del pool:**
+- `connectionLimit: 10` - Maximo 10 conexiones simultaneas
+- `connectTimeout: 60000` - Tiempo de espera de conexion: 60 segundos
+- `ssl: { rejectUnauthorized: false }` - SSL activo en produccion cuando `DB_SSL=true`
+
+Al iniciarse, el modulo ejecuta `SELECT 1` para verificar la conexion e imprime el resultado en consola.
+
+---
+
+### 5.3 models/User.js - Modelo de Usuario
+
+Clase estatica con todos los metodos de acceso a la tabla `usuarios`. Todos los metodos son `async` y retornan Promises.
+
+| Metodo | Parametros | Retorna | Descripcion |
+|--------|-----------|---------|-------------|
+| `findByEmail(email)` | email: String | Object / undefined | Busca usuario por email (PK) |
+| `findByUsername(nombreUsuario)` | nombreUsuario: String | Object / undefined | Busca por nombre de usuario |
+| `findByIdentification(identificacion)` | identificacion: String | Object / undefined | Busca por numero de documento |
+| `findAll()` | - | Array | Retorna todos los usuarios |
+| `create(userData)` | userData: Object | Object | Inserta nuevo usuario |
+| `update(email, userData)` | email: String, userData: Object | Object | Actualiza datos del usuario |
+| `updatePassword(email, newPassword)` | email: String, newPassword: String | void | Actualiza hash de contrasena |
+| `updateLastAccess(email)` | email: String | void | Registra timestamp de ultimo acceso |
+| `verifyByEmail(email)` | email: String | void | Marca usuario como verificado |
+| `delete(email)` | email: String | void | Elimina usuario por email |
+
+---
+
+### 5.4 models/Appointment.js - Modelo de Cita
+
+Clase estatica con metodos de acceso a la tabla `citas`. Incluye metodos auxiliares privados para mapeo y formato de datos.
+
+| Metodo | Parametros | Retorna | Descripcion |
+|--------|-----------|---------|-------------|
+| `findAll()` | - | Array | Todas las citas ordenadas por fecha |
+| `findById(id)` | id: String | Object / null | Cita por UUID, mapeada a camelCase |
+| `findByPsychologist(email)` | email: String | Array | Citas asignadas a un psicologo |
+| `create(data)` | data: Object | Object | Crea cita con UUID autogenerado |
+| `update(id, data)` | id: String, data: Object | Object | Actualiza campos de la cita |
+| `cancel(id, cancelledBy)` | id: String, cancelledBy: String | Object | Cancela cita y registra quien cancelo |
+| `countActiveByClient(email)` | email: String | Number | Cuenta citas activas del cliente |
+| `isSlotTaken(date, time, email)` | date, time, email | Boolean | Verifica disponibilidad de horario |
+| `generateId()` (privado) | - | String | Genera UUID v4 |
+| `mapRow(row)` (privado) | row: Object | Object | Convierte snake_case de BD a camelCase |
+| `formatDate(value)` (privado) | value | String | Normaliza formato de fecha a YYYY-MM-DD |
+
+---
+
+### 5.5 controllers/authController.js
+
+Gestiona el registro e inicio de sesion. Metodos exportados:
+
+**`register(req, res)`**
+1. Extrae campos del `req.body`
+2. Verifica unicidad de email, nombre de usuario e identificacion
+3. Encripta la contrasena con `bcrypt.hash(password, 10)`
+4. Crea el usuario en la BD
+5. Auto-verifica el usuario (workaround por email no configurado)
+6. Responde con exito inmediatamente
+7. Intenta enviar email de verificacion en segundo plano (no bloqueante)
+
+**`login(req, res)`**
+1. Busca el usuario por email
+2. Compara la contrasena con `bcrypt.compare()`
+3. Genera token JWT con `jwt.sign({ email, nombreUsuario, tipoUsuario }, secret, { expiresIn: '7d' })`
+4. Actualiza el campo `ultimo_acceso`
+5. Retorna el token y los datos del usuario
+
+---
+
+### 5.6 controllers/userController.js
+
+CRUD de usuarios, accesible unicamente con token JWT valido.
+
+| Metodo | HTTP | Ruta | Descripcion |
+|--------|------|------|-------------|
+| `getAllUsers` | GET | `/api/users` | Lista todos los usuarios |
+| `getUserByEmail` | GET | `/api/users/:email` | Obtiene un usuario especifico |
+| `createUser` | POST | `/api/users` | Crea usuario (admin) |
+| `updateUser` | PUT | `/api/users/:email` | Actualiza usuario |
+| `deleteUser` | DELETE | `/api/users/:email` | Elimina usuario |
+
+---
+
+### 5.7 controllers/appointmentController.js
+
+Gestiona el ciclo de vida de las citas.
+
+| Metodo exportado | HTTP | Ruta | Descripcion |
+|-----------------|------|------|-------------|
+| `getAppointments` | GET | `/api/appointments` | Lista todas las citas |
+| `createAppointment` | POST | `/api/appointments` | Crea cita validando limite y disponibilidad |
+| `updateAppointment` | PUT | `/api/appointments/:id` | Modifica cita (solo el cliente dueno) |
+| `cancelAppointment` | PATCH | `/api/appointments/:id/cancel` | Cancela cita como cliente |
+| `getMyAppointmentsAsPsychologist` | GET | `/api/appointments/psychologist` | Citas del psicologo autenticado |
+| `cancelByPsychologist` | PATCH | `/api/appointments/:id/cancel-by-psychologist` | Cancela cita como psicologo |
+
+**Validaciones en `createAppointment`:**
+- El cliente no puede tener mas de 2 citas activas simultaneamente
+- El horario seleccionado no debe estar ocupado para ese psicologo en esa fecha
+
+**Control de acceso:**
+- `cancelAppointment`: verifica que `client_email === req.user.email`
+- `cancelByPsychologist`: verifica que `psychologist_email === req.user.email`
+
+---
+
+### 5.8 middleware/validation.js
+
+**`authenticateToken(req, res, next)`**
+Middleware que verifica el token JWT en el header `Authorization: Bearer <token>`.
+- Si el token es valido: adjunta el payload decodificado en `req.user` y llama a `next()`
+- Si el token falta o es invalido: retorna HTTP 401
+
+**`registerValidation`**
+Array de reglas `express-validator` para el endpoint de registro. Valida:
+- Formato y longitud de cada campo
+- Tipo de identificacion (solo CC o CE)
+- Edad minima de 18 anos
+- Formato de email
+- Campos condicionales para Psicologo/empleado
+
+---
+
+## 6. Documentacion del Codigo - Frontend
+
+### 6.1 App.jsx - Router Principal
+
+Define todas las rutas de la SPA usando `react-router-dom`. Las rutas protegidas estan envueltas en el componente `ProtectedRoute`.
+
+| Ruta | Componente | Protegida |
+|------|-----------|-----------|
+| `/` | Login | No |
+| `/login` | Login | No |
+| `/registro` | RegisterPage | No |
+| `/verificacion` | VerificationPage | No |
+| `/verify` | VerifyEmailPage | No |
+| `/exito` / `/success` | SuccessPage | No |
+| `/forgot-password` | ForgotPasswordPage | No |
+| `/reset-password` | ResetPasswordPage | No |
+| `/dashboard` | DashboardPage | Si |
+| `/citas` | AppointmentPage | Si |
+
+---
+
+### 6.2 config/api.js - URL Base de la API
+
+```javascript
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api';
+export default API_BASE_URL;
 ```
-Content-Type: application/json
+
+Centraliza la URL del backend. En produccion usa la variable de entorno de Vercel; en desarrollo usa `localhost:5000/api` como fallback.
+
+---
+
+### 6.3 components/ProtectedRoute.jsx
+
+Higher-Order Component (HOC) que verifica la existencia del token JWT en `localStorage` antes de renderizar la pagina protegida. Si no hay token, redirige al login usando `<Navigate to="/login" replace />`.
+
+---
+
+### 6.4 hooks/useSessionTimeout.js
+
+Hook personalizado que implementa el control de sesion por inactividad.
+
+**Parametros:**
+- `timeoutMinutes` (default: 5) - Minutos de inactividad antes de cerrar la sesion
+- `warningMinutes` (default: 1) - Minutos antes del cierre en que aparece la advertencia
+
+**Retorna:**
+- `showWarning` (Boolean) - Indica si mostrar el modal de advertencia
+- `remainingTime` (Number) - Segundos restantes en la cuenta regresiva
+- `resetTimer()` - Funcion para reiniciar el temporizador
+
+**Eventos escuchados:** `mousemove`, `mousedown`, `keypress`, `scroll`, `touchstart`
+
+---
+
+### 6.5 pages/AppointmentPage.jsx
+
+Pagina de citas que renderiza un componente diferente segun el tipo de usuario:
+
+```javascript
+const tipo = (user.tipoUsuario || '').toLowerCase();
+const esPsicologo = tipo.includes('empleado') || tipo.includes('psic');
+
+// Renderiza:
+esPsicologo ? <PsychologistAppointments /> : <AppointmentScheduler />
 ```
 
-**Body:**
+La comparacion es **insensible a mayusculas y tildes** para garantizar compatibilidad con variaciones en el valor almacenado.
+
+---
+
+### 6.6 components/Appointments/AppointmentScheduler.jsx
+
+Componente principal del modulo de citas para clientes. Funcionalidades:
+
+- Carga lista de citas del cliente desde `GET /api/appointments`
+- Carga lista de psicologos desde `GET /api/users` (filtra tipo Psicologo/empleado)
+- Renderiza un calendario mensual navegable
+- Gestiona los estados: crear cita, editar cita, cancelar cita
+- Muestra el indicador "cancelada por el psicologo" cuando `appointment.cancelledBy === 'psicologo'`
+
+**Horarios disponibles:**
+```javascript
+const TIME_SLOTS = ['08:00', '09:30', '11:00', '14:00', '15:30', '17:00'];
+```
+
+---
+
+### 6.7 components/Appointments/PsychologistAppointments.jsx
+
+Panel de citas para psicologos. Funcionalidades:
+
+- Carga citas propias desde `GET /api/appointments/psychologist`
+- Clasifica citas en pendientes (`status === 'Agendada'`) y canceladas
+- Permite cancelar citas mediante `PATCH /api/appointments/:id/cancel-by-psychologist`
+- Actualiza la lista en tiempo real sin recargar la pagina al cancelar
+
+---
+
+### 6.8 pages/DashboardPage.jsx
+
+Pagina principal post-login. Gestiona:
+
+- Lectura del `tipoUsuario` desde `localStorage` para determinar el rol
+- Variable `isAdmin`: verifica email y nombre de usuario del administrador del sistema
+- Variable `tipoUsuario`: determina si mostrar `PsychologistAppointments` o `AppointmentScheduler` en la vista de citas
+- Estado `currentView`: controla que componente se muestra en el area central
+
+**Vistas disponibles:**
+
+| currentView | Componente mostrado |
+|-------------|-------------------|
+| `home` | Mensaje de bienvenida |
+| `editar` | UserList |
+| `edit-form` | UserEditForm |
+| `registrar` | UserRegisterForm |
+| `citas` | AppointmentScheduler o PsychologistAppointments (segun rol) |
+
+---
+
+## 7. Base de Datos
+
+### 7.1 Motor y Configuracion
+
+- Motor: **InnoDB** (soporte de transacciones y claves foraneas)
+- Charset: **utf8mb4** (soporte completo de Unicode incluyendo emojis)
+- Collation: **utf8mb4_unicode_ci** (comparacion insensible a mayusculas/tildes)
+
+### 7.2 Tabla: usuarios
+
+| Columna | Tipo | Restriccion | Descripcion |
+|---------|------|-------------|-------------|
+| email | VARCHAR(150) | PK | Identificador unico del usuario |
+| nombre_usuario | VARCHAR(100) | NOT NULL, UNIQUE | Nombre de usuario en la plataforma |
+| tipo_identificacion | VARCHAR(5) | NOT NULL | CC o CE |
+| identificacion | VARCHAR(50) | NOT NULL, UNIQUE | Numero de documento |
+| fecha_nacimiento | DATE | NOT NULL | Mayor de 18 anos |
+| telefono | VARCHAR(20) | NOT NULL | 10 digitos |
+| direccion | VARCHAR(255) | NOT NULL | Direccion de residencia |
+| tipo_usuario | VARCHAR(50) | DEFAULT 'Cliente' | Rol del usuario |
+| formacion_profesional | VARCHAR(255) | NULL | Solo para psicologos |
+| tarjeta_profesional | VARCHAR(100) | NULL | Solo para psicologos |
+| password | VARCHAR(255) | NOT NULL | Hash bcrypt |
+| verificado | TINYINT(1) | DEFAULT 0 | Estado de verificacion |
+| token_verificacion | VARCHAR(255) | NULL | Token de verificacion de email |
+| token_recuperacion | VARCHAR(255) | NULL | Token de recuperacion de contrasena |
+| token_recuperacion_expira | DATETIME | NULL | Expiracion del token |
+| fecha_registro | TIMESTAMP | DEFAULT NOW() | Creacion del registro |
+| ultimo_acceso | TIMESTAMP | NULL | Ultimo login exitoso |
+
+### 7.3 Tabla: citas
+
+| Columna | Tipo | Restriccion | Descripcion |
+|---------|------|-------------|-------------|
+| id | VARCHAR(36) | PK | UUID de la cita |
+| client_email | VARCHAR(150) | FK -> usuarios.email | Email del cliente |
+| client_name | VARCHAR(100) | NOT NULL | Nombre del cliente |
+| date | DATE | NOT NULL | Fecha de la cita |
+| time | VARCHAR(10) | NOT NULL | Hora de la cita |
+| psychologist_email | VARCHAR(150) | FK -> usuarios.email | Email del psicologo |
+| psychologist_name | VARCHAR(100) | NOT NULL | Nombre del psicologo |
+| psychologist_specialty | VARCHAR(255) | DEFAULT 'Psicologo/a' | Especialidad |
+| notes | TEXT | NULL | Notas del cliente |
+| status | ENUM | DEFAULT 'Agendada' | Agendada / Cancelada |
+| cancelled_by | VARCHAR(20) | NULL | 'cliente' o 'psicologo' |
+| created_at | TIMESTAMP | DEFAULT NOW() | Creacion del registro |
+| updated_at | TIMESTAMP | ON UPDATE NOW() | Ultima modificacion |
+
+### 7.4 Relaciones
+
+```
+usuarios.email (1) <----> (N) citas.client_email
+usuarios.email (1) <----> (N) citas.psychologist_email
+```
+
+Un mismo usuario puede aparecer como cliente en muchas citas y como psicologo en muchas citas.
+
+### 7.5 Indices
+
+```sql
+-- Tabla usuarios
+idx_nombre_usuario       -> nombre_usuario
+idx_identificacion       -> identificacion
+idx_token_verificacion   -> token_verificacion
+idx_token_recuperacion   -> token_recuperacion
+
+-- Tabla citas
+idx_client_email         -> client_email
+idx_psychologist_email   -> psychologist_email
+idx_status               -> status
+idx_date                 -> date
+```
+
+---
+
+## 8. API REST - Endpoints
+
+### 8.1 Autenticacion
+
+| Metodo | Ruta | Auth | Descripcion |
+|--------|------|------|-------------|
+| POST | `/api/auth/register` | No | Registrar nuevo usuario |
+| POST | `/api/auth/login` | No | Iniciar sesion y obtener JWT |
+
+**Ejemplo: POST /api/auth/login**
+
+Request:
 ```json
 {
-  "email": "juan@example.com",
-  "password": "Password!"
+  "email": "usuario@correo.com",
+  "password": "MiContrasena123*"
 }
 ```
 
-**Response 00:**
+Response exitoso (200):
 ```json
 {
   "success": true,
   "message": "Login exitoso",
-  "token": "eyJhbGciOiJIUzINiIsInRcCIIkpXVCJ...",
+  "token": "eyJhbGciOiJIUzI1NiIsInR...",
   "user": {
-    "email": "juan@example.com",
-    "nombreUsuario": "Juan Pérez",
-    "verificado": true
+    "email": "usuario@correo.com",
+    "nombreUsuario": "UsuarioPrueba",
+    "tipoUsuario": "Cliente"
   }
 }
 ```
 
+### 8.2 Usuarios
+
+Todas requieren header: `Authorization: Bearer <token>`
+
+| Metodo | Ruta | Descripcion |
+|--------|------|-------------|
+| GET | `/api/users` | Listar todos los usuarios |
+| GET | `/api/users/:email` | Obtener usuario por email |
+| POST | `/api/users` | Crear usuario (admin) |
+| PUT | `/api/users/:email` | Actualizar usuario |
+| DELETE | `/api/users/:email` | Eliminar usuario |
+
+### 8.3 Citas
+
+Todas requieren header: `Authorization: Bearer <token>`
+
+| Metodo | Ruta | Descripcion |
+|--------|------|-------------|
+| GET | `/api/appointments` | Listar todas las citas |
+| GET | `/api/appointments/psychologist` | Citas del psicologo autenticado |
+| POST | `/api/appointments` | Crear nueva cita |
+| PUT | `/api/appointments/:id` | Modificar cita |
+| PATCH | `/api/appointments/:id/cancel` | Cancelar cita (cliente) |
+| PATCH | `/api/appointments/:id/cancel-by-psychologist` | Cancelar cita (psicologo) |
+
+### 8.4 Codigos de Respuesta
+
+| Codigo | Significado |
+|--------|-------------|
+| 200 | Operacion exitosa |
+| 201 | Recurso creado exitosamente |
+| 400 | Datos de entrada invalidos o regla de negocio no cumplida |
+| 401 | Token ausente, invalido o expirado |
+| 403 | Sin permiso para la operacion solicitada |
+| 404 | Recurso no encontrado |
+| 500 | Error interno del servidor |
+
 ---
 
-#### GET /api/auth/verify-email?token=xxx
+## 9. Autenticacion y Seguridad
 
-**Descripción:** Verificar email del usuario
+### 9.1 Flujo de Autenticacion JWT
 
-**Response 00:**
-```json
-{
-  "success": true,
-  "message": "Email verificado exitosamente"
-}
 ```
+1. Cliente envia credenciales -> POST /api/auth/login
+2. Backend verifica con bcrypt
+3. Backend genera JWT:
+   jwt.sign(
+     { email, nombreUsuario, tipoUsuario },
+     process.env.JWT_SECRET,
+     { expiresIn: '7d' }
+   )
+4. Token se almacena en localStorage del navegador
+5. Cada peticion protegida incluye: Authorization: Bearer <token>
+6. Middleware authenticateToken decodifica y verifica el token
+7. Payload disponible en req.user para los controladores
+```
+
+### 9.2 Medidas de Seguridad Implementadas
+
+| Medida | Implementacion |
+|--------|---------------|
+| Hash de contrasenas | bcrypt con factor de coste 10 |
+| Autenticacion sin estado | JWT con expiracion de 7 dias |
+| Validacion de entrada | express-validator en todos los endpoints de escritura |
+| Control de origenes | CORS con lista blanca de dominios permitidos |
+| Cifrado en transito | HTTPS en todos los entornos de produccion |
+| Cifrado BD | Conexion MySQL con SSL en produccion (`DB_SSL=true`) |
+| Variables sensibles | dotenv; ningun secreto en el codigo fuente |
+| Control de acceso | Verificacion de propiedad en cancelacion de citas |
+
+### 9.3 Control de Sesion en el Frontend
+
+El hook `useSessionTimeout` implementa cierre automatico por inactividad:
+- Tiempo total: 5 minutos
+- Advertencia: al minuto 4 (1 minuto antes)
+- Al cerrar: elimina token y userData de localStorage, redirige al login con `replace: true`
 
 ---
 
-### . Gestión de Usuarios
+## 10. Variables de Entorno
 
-#### GET /api/users
+### 10.1 Backend (backend/.env)
 
-**Descripción:** Obtener todos los usuarios
+| Variable | Tipo | Requerida | Descripcion |
+|----------|------|-----------|-------------|
+| `PORT` | Number | Si | Puerto del servidor (5000 local, 5000 produccion) |
+| `NODE_ENV` | String | Si | `development` o `production` |
+| `DB_HOST` | String | Si | Host de MySQL |
+| `DB_PORT` | Number | No | Puerto MySQL (default: 3306) |
+| `DB_USER` | String | Si | Usuario MySQL |
+| `DB_PASSWORD` | String | Si | Contrasena MySQL |
+| `DB_NAME` | String | Si | Nombre de la base de datos |
+| `DB_SSL` | Boolean | No | Activar SSL (default: false) |
+| `JWT_SECRET` | String | Si | Clave para firmar tokens (minimo 32 caracteres) |
+| `JWT_EXPIRE` | String | No | Expiracion del token (default: 7d) |
+| `CLIENT_URL` | String | Si | URL del frontend para CORS |
+| `EMAIL_USER` | String | No | Correo SMTP (no funcional en produccion actual) |
+| `EMAIL_PASS` | String | No | Contrasena SMTP |
+| `EMAIL_FROM` | String | No | Remitente de correos |
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+### 10.2 Frontend (.env en raiz)
 
-**Response 00:**
+| Variable | Tipo | Requerida | Descripcion |
+|----------|------|-----------|-------------|
+| `REACT_APP_API_URL` | String | Si | URL base del backend incluyendo `/api` |
+
+> Las variables de React deben comenzar con `REACT_APP_` para ser accesibles en el codigo del cliente. Son compiladas en el build; un cambio requiere redeploy.
+
+---
+
+## 11. Despliegue en Produccion
+
+### 11.1 CI/CD Automatico
+
+El repositorio en GitHub esta conectado a Vercel y Render mediante webhooks. Cualquier push a la rama `master` desencadena automaticamente:
+
+1. **Render:** ejecuta `npm install` y reinicia el servidor con el nuevo codigo
+2. **Vercel:** ejecuta `npm run build` (CRA) y publica los archivos estaticos en el CDN
+
+### 11.2 Configuracion de vercel.json
+
 ```json
 {
-  "success": true,
-  "users": [
+  "version": 2,
+  "builds": [
     {
-      "email": "juan@example.com",
-      "nombre_usuario": "Juan Pérez",
-      "tipo_identificacion": "CC",
-      "identificacion": "70",
-      "fecha_nacimiento": "0-0-",
-      "telefono": "007",
-      "direccion": "Calle  #-7",
-      "tipo_usuario": "Cliente",
-      "verificado": true,
-      "fecha_registro": "0-0-T00:00:00.000Z",
-      "ultimo_acceso": "0-0-T0:0:00.000Z"
+      "src": "package.json",
+      "use": "@vercel/static-build",
+      "config": { "distDir": "build" }
     }
+  ],
+  "routes": [
+    { "src": "/static/(.*)", "dest": "/static/$1" },
+    { "src": "/(.*)", "dest": "/index.html" }
   ]
 }
 ```
 
----
+La regla `"/(.*)" -> "/index.html"` es critica para las SPAs: garantiza que todas las rutas retornen el `index.html` y React Router maneje la navegacion en el cliente.
 
-#### POST /api/users
+### 11.3 URLs de Produccion
 
-**Descripción:** Crear usuario desde dashboard
-
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
-
-**Body:**
-```json
-{
-  "nombre_usuario": "María González",
-  "tipo_identificacion": "CC",
-  "identificacion": "70",
-  "fecha_nacimiento": "-0-0",
-  "telefono": "07",
-  "direccion": "Carrera  #7-",
-  "tipo_usuario": "Empleado",
-  "formacion_profesional": "Psicología - Universidad Nacional",
-  "tarjeta_profesional": "TP-",
-  "email": "maria@example.com",
-  "password": "Secure!"
-}
-```
+| Servicio | URL |
+|---------|-----|
+| Frontend | https://segura-mente-app-final.vercel.app |
+| Backend | https://segura-mente-app-ga8-220501096-aa1-ev02.onrender.com |
+| Repositorio | https://github.com/Juanflo112/Segura-Mente-App-Final.git |
 
 ---
 
-#### PUT /api/users/:email
+## 12. Mantenimiento y Solucion de Problemas
 
-**Descripción:** Actualizar usuario existente
+### 12.1 Problemas Comunes
 
-**Headers:**
-```
-Authorization: Bearer <token>
-Content-Type: application/json
-```
+**El backend tarda en responder la primera peticion**
 
-**Body:** (campos a actualizar)
-```json
-{
-  "telefono": "00",
-  "direccion": "Nueva dirección "
-}
-```
+Causa: El plan gratuito de Render suspende el servidor tras 15 minutos de inactividad.  
+Solucion: La primera peticion activa el servidor; esperar entre 20 y 30 segundos.
 
----
+**Error CORS al consumir la API**
 
-#### DELETE /api/users/:email
+Causa: El dominio del frontend no esta en la lista de origenes permitidos en `server.js`.  
+Solucion: Verificar que `CLIENT_URL` en Render tenga el valor exacto de la URL de Vercel, incluyendo el protocolo `https://`.
 
-**Descripción:** Eliminar usuario
+**El registro tarda mucho en responder**
 
-**Headers:**
-```
-Authorization: Bearer <token>
-```
+Causa: El servidor intenta conectar al SMTP antes de responder.  
+Solucion: Ya corregido en la version actual. El envio de email es no bloqueante y los timeouts del transporter SMTP estan en 5 segundos.
 
-**Response 00:**
-```json
-{
-  "success": true,
-  "message": "Usuario eliminado exitosamente"
-}
-```
+**La vista del psicologo muestra el calendario en lugar del panel de citas**
 
----
+Causa: El `tipoUsuario` en `localStorage` tiene un valor diferente al esperado.  
+Solucion: Cerrar sesion e iniciar sesion nuevamente para actualizar los datos en `localStorage`. La comparacion es insensible a mayusculas y tildes.
 
-## 7. Autenticación y Seguridad
+**Error "Ruta no encontrada" al consumir `/api/appointments/psychologist`**
 
-### 7. Flujo de Autenticación JWT
+Causa: El backend desplegado en Render no tiene la version mas reciente del codigo.  
+Solucion: En Render > Deployments, verificar que el ultimo deploy sea exitoso. Si no, ejecutar Manual Deploy.
 
-```
-. Usuario envía credenciales (email + password)
-   ↓
-. Backend verifica en base de datos
-   ↓
-. bcrypt.compare(password, hashedPassword)
-   ↓
-. Si es válido: jwt.sign({ email }, SECRET, { expiresIn: '7d' })
-   ↓
-. Token enviado al frontend
-   ↓
-. Frontend almacena token en localStorage
-   ↓
-7. Todas las peticiones subsecuentes incluyen:
-   Header: Authorization: Bearer <token>
-   ↓
-. Backend verifica token en cada petición protegida
-```
-
-### 7. Hash de Contraseñas
-
-**Algoritmo:** bcrypt con 0 rounds de salt
-
-```javascript
-// Al registrar
-const hashedPassword = await bcrypt.hash(password, 0);
-
-// Al login
-const isValid = await bcrypt.compare(inputPassword, storedHash);
-```
-
-### 7. Middleware de Autenticación
-
-**Archivo:** Implementado inline en `backend/routes/users.js`
-
-```javascript
-const jwt = require('jsonwebtoken');
-
-// Middleware
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers['authorization'];
-  const token = authHeader && authHeader.split(' ')[];
-
-  if (!token) {
-    return res.status(0).json({ 
-      success: false, 
-      message: 'No autorizado' 
-    });
-  }
-
-  jwt.verify(token, process.env.JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(0).json({ 
-        success: false, 
-        message: 'Token inválido' 
-      });
-    }
-    req.user = user;
-    next();
-  });
-};
-```
-
-### 7. CORS Configuration
-
-```javascript
-// backend/server.js
-const cors = require('cors');
-
-app.use(cors({
-  origin: process.env.CLIENT_URL,
-  credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE'],
-  allowedHeaders: ['Content-Type', 'Authorization']
-}));
-```
-
-### 7. Variables de Entorno Sensibles
-
-**NUNCA commitear al repositorio:**
-- JWT_SECRET
-- DB_PASSWORD
-- EMAIL_PASS
-
-**Uso de .env:**
-```javascript
-require('dotenv').config();
-
-const secret = process.env.JWT_SECRET;
-```
-
----
-
-## . Deployment
-
-### . Despliegue Frontend (Vercel)
-
-**Pasos:**
-
-. **Conectar Repositorio GitHub**
-   - Ir a https://vercel.com
-   - "Add New Project"
-   - Importar repositorio GitHub
-
-. **Configurar Build**
-   ```
-   Framework Preset: Create React App
-   Build Command: npm run build
-   Output Directory: build
-   Install Command: npm install
-   ```
-
-. **Variables de Entorno**
-   ```
-   REACT_APP_API_URL=https://[tu-backend].onrender.com/api
-   ```
-
-. **Deploy**
-   - Vercel auto-deploya desde el branch `main`
-   - URL generada: https://[proyecto].vercel.app
-
----
-
-### . Despliegue Backend (Render)
-
-**Pasos:**
-
-. **Crear Web Service**
-   - Ir a https://render.com
-   - "New Web Service"
-   - Conectar GitHub repo
-
-. **Configurar Service**
-   ```
-   Name: segura-mente-app-backend
-   Region: Oregon (US West)
-   Branch: main
-   Root Directory: backend
-   Runtime: Node
-   Build Command: npm install
-   Start Command: npm start
-   ```
-
-. **Variables de Entorno** (todas las del .env)
-   ```
-   NODE_ENV=production
-   PORT=0000
-   DB_HOST=caboose.proxy.rlwy.net
-   DB_PORT=
-   DB_USER=root
-   DB_PASSWORD=[tu_password]
-   DB_NAME=railway
-   DB_SSL=true
-   JWT_SECRET=[tu_secret]
-   JWT_EXPIRE=7d
-   CLIENT_URL=https://[tu-frontend].vercel.app
-   ```
-
-. **Deploy**
-   - Render auto-deploya desde `main`
-   - Health check en ruta `/`
-
----
-
-### . Despliegue Base de Datos (Railway)
-
-**Pasos:**
-
-. **Crear MySQL Database**
-   - Ir a https://railway.app
-   - "New Project" → "Provision MySQL"
-
-. **Habilitar Public Networking**
-   - Settings → Networking
-   - Enable "Public Networking"
-   - Anotar host público y puerto
-
-. **Ejecutar Scripts**
-   - Conectar con cliente MySQL:
-   ```bash
-   mysql -h caboose.proxy.rlwy.net -P  -u root -p
-   ```
-   - Ejecutar `database.sql`
-   - Ejecutar migraciones
-
-. **SSL Requerido**
-   - Railway requiere conexiones SSL
-   - Configurar en backend: `DB_SSL=true`
-
----
-
-## . Mantenimiento y Troubleshooting
-
-### . Logs del Backend
-
-**Render:**
-- Dashboard → Tu servicio → "Logs"
-- Logs en tiempo real
-- Filtrar por nivel (info, error, warning)
-
-**Logs importantes a monitorear:**
-```javascript
-console.log('MySQL conectado exitosamente');
-console.log('Server running on port', PORT);
-console.error('Error de conexión:', error);
-```
-
-### . Problemas Comunes
-
-#### Error: "Connection timeout" en Railway
-
-**Causa:** Backend usando host interno en lugar de público
-
-**Solución:**
-```env
-# Usar host público
-DB_HOST=caboose.proxy.rlwy.net
-DB_PORT=
-```
-
----
-
-#### Error: "CORS policy blocked"
-
-**Causa:** CLIENT_URL no configurado o incorrecto
-
-**Solución:**
-```env
-# Asegurar que coincide exactamente
-CLIENT_URL=https://segura-mente-app-frontend.vercel.app
-```
-
----
-
-#### Error: "JWT malformed"
-
-**Causa:** Token no incluido o formato incorrecto
-
-**Solución:**
-```javascript
-// Frontend debe enviar:
-headers: {
-  'Authorization': `Bearer ${token}`
-}
-```
-
----
-
-#### Backend tarda mucho en responder (primera vez)
-
-**Causa:** Cold start de Render free tier ( min inactividad)
-
-**Solución:**
-- Esperar 0-0 segundos en primera carga
-- Upgrade a plan paid (sin cold start)
-- Implementar keep-alive ping
-
----
-
-### . Monitoreo
-
-**Uptime Monitoring:**
-- Usar servicio como UptimeRobot
-- Ping cada  minutos a: `https://[backend].onrender.com/`
-
-**Performance:**
-- Vercel Analytics (incluido gratis)
-- Response time promedio < s
-
-**Database:**
-- Railway dashboard muestra:
-  - Connections activas
-  - CPU usage
-  - Memory usage
-  - Storage usado
-
----
-
-### . Backups
-
-**Base de Datos:**
-```bash
-# Exportar desde Railway
-mysqldump -h caboose.proxy.rlwy.net -P  -u root -p railway > backup_$(date +%Y%m%d).sql
-
-# Importar
-mysql -h caboose.proxy.rlwy.net -P  -u root -p railway < backup_00.sql
-```
-
-**Código Fuente:**
-- Automático en GitHub
-- Tags para versiones importantes:
-```bash
-git tag -a v.0.0 -m "Primera versión estable"
-git push origin v.0.0
-```
-
----
-
-## 0. Escalabilidad y Mejoras Futuras
-
-### 0. Optimizaciones Recomendadas
-
-**Backend:**
-- [ ] Implementar rate limiting (express-rate-limit)
-- [ ] Agregar logging profesional (Winston)
-- [ ] Cachear queries frecuentes (Redis)
-- [ ] Implementar paginación en el backend
-- [ ] Agregar compresión gzip
-
-**Frontend:**
-- [ ] Implementar lazy loading de componentes
-- [ ] Agregar PWA capabilities
-- [ ] Optimizar imágenes (WebP)
-- [ ] Implementar service workers
-
-**Database:**
-- [ ] Implementar réplicas de lectura
-- [ ] Agregar índices compuestos
-- [ ] Implementar soft deletes
-- [ ] Particionamiento de tablas grandes
-
----
-
-### 0. Funcionalidades Futuras
-
-**Sistema de Roles:**
-```sql
-CREATE TABLE roles (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    nombre VARCHAR(0) UNIQUE NOT NULL
-);
-
-CREATE TABLE usuario_roles (
-    usuario_email VARCHAR(0),
-    role_id INT,
-    FOREIGN KEY (usuario_email) REFERENCES usuarios(email),
-    FOREIGN KEY (role_id) REFERENCES roles(id),
-    PRIMARY KEY (usuario_email, role_id)
-);
-```
-
-**Auditoría:**
-```sql
-CREATE TABLE auditoria (
-    id INT PRIMARY KEY AUTO_INCREMENT,
-    usuario_email VARCHAR(0),
-    accion VARCHAR(0),
-    tabla VARCHAR(0),
-    registro_id VARCHAR(0),
-    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    FOREIGN KEY (usuario_email) REFERENCES usuarios(email)
-);
-```
-
-**Notificaciones:**
-- Implementar WebSockets (Socket.io)
-- Notificaciones push
-- Email transaccional via API (SendGrid API REST)
-
----
-
-## . Comandos Útiles
-
-### Git
+### 12.2 Comandos Utiles
 
 ```bash
-# Ver estado
-git status
+# Verificar que el backend responde
+curl https://segura-mente-app-ga8-220501096-aa1-ev02.onrender.com/
 
-# Agregar cambios
+# Ver logs del backend en Render
+# Dashboard de Render > Servicio > Logs
+
+# Verificar estado del ultimo deploy
+git log --oneline -5
+
+# Forzar redeploy empujando un commit vacio
+git commit --allow-empty -m "forzar redeploy"
+git push
+```
+
+### 12.3 Actualizacion del Sistema
+
+Para aplicar cambios en produccion:
+
+```bash
+# 1. Realizar cambios en los archivos
+# 2. Probar localmente
+# 3. Agregar cambios al staging
 git add .
 
-# Commit
-git commit -m "Descripción"
+# 4. Crear el commit con mensaje descriptivo en espanol
+git commit -m "descripcion clara del cambio realizado"
 
-# Push a GitHub (auto-deploy)
-git push origin main
+# 5. Publicar en el repositorio remoto
+git push
 
-# Ver logs
-git log --oneline --graph
-```
-
-### npm
-
-```bash
-# Instalar dependencias
-npm install
-
-# Actualizar paquete específico
-npm update <paquete>
-
-# Verificar vulnerabilidades
-npm audit
-
-# Corregir vulnerabilidades
-npm audit fix
-
-# Limpiar caché
-npm cache clean --force
-```
-
-### MySQL
-
-```bash
-# Conectar a Railway
-mysql -h caboose.proxy.rlwy.net -P  -u root -p railway
-
-# Ver tablas
-SHOW TABLES;
-
-# Describir tabla
-DESCRIBE usuarios;
-
-# Ver cantidad de usuarios
-SELECT COUNT(*) FROM usuarios;
-
-# Ver últimos usuarios registrados
-SELECT nombre_usuario, email, fecha_registro 
-FROM usuarios 
-ORDER BY fecha_registro DESC 
-LIMIT 0;
+# Render y Vercel redesplieguen automaticamente en los siguientes 2-5 minutos
 ```
 
 ---
 
-## . Contacto y Soporte
-
-**Repositorio GitHub:**  
-https://github.com/Juanflo/segura-mente-app-GA-000-AA-EV0
-
-**Issues:**  
-https://github.com/Juanflo/segura-mente-app-GA-000-AA-EV0/issues
-
-**Documentación Adicional:**
-- [README.md](README.md) - Introducción al proyecto
-- [DEPLOYMENT.md](DEPLOYMENT.md) - Guía detallada de despliegue
-- [DEPLOYMENT_URLS.md](DEPLOYMENT_URLS.md) - URLs de producción
-- [DOCUMENTACION_MODULOS.md](DOCUMENTACION_MODULOS.md) - Documentación de módulos
-- [DOCUMENTACION_PRUEBAS.md](DOCUMENTACION_PRUEBAS.md) - Documentación de pruebas
-
----
-
-
+*Manual Tecnico - Segura-Mente App*  
+*Autor: Juan Pablo Mejia Vargas - SENA*  
+*Version 2.0.0 - Julio 2026*
