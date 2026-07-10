@@ -72,7 +72,7 @@ module.exports = defineConfig({
 
       adminUser: {
         email: 'administrador@seguramente.com',
-        password: 'Admin1234*',
+        password: 'Colombia2026*',
         nombreUsuario: 'administrador'
       },
 
