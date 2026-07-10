@@ -50,6 +50,22 @@ describe('Autenticacion - Registro de Usuario', () => {
     });
   });
 
+  it('Caso 1.2b - CP-04: Debe fallar con identificacion duplicada', () => {
+    const testUser = Cypress.env('testUser');
+    const userData = Cypress.generateTestUser('Cliente');
+    userData.identificacion = testUser.identificacion;
+
+    cy.log(`Intentando registrar identificacion duplicada: ${testUser.identificacion}`);
+
+    cy.registerUser(userData).then((response) => {
+      expect(response.status, 'Status debe ser 400 o 409').to.be.oneOf([400, 409]);
+      expect(response.body.success, 'Success debe ser false').to.be.false;
+      expect(response.body.message, 'Debe mencionar identificacion duplicada')
+        .to.match(/identificaci|ya est|registrad/i);
+      cy.log('Error de identificacion duplicada detectado correctamente');
+    });
+  });
+
   it('Caso 1.3: Debe fallar con contrasena debil', () => {
     const userData = Cypress.generateTestUser('Cliente');
     // Modificar para tener contraseña débil
