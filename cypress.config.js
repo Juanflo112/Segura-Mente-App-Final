@@ -3,7 +3,7 @@ const { defineConfig } = require('cypress');
 module.exports = defineConfig({
   e2e: {
     // URL base del frontend en Vercel
-    baseUrl: 'https://segura-mente-app-frontend.vercel.app',
+    baseUrl: 'https://segura-mente-app-final.vercel.app',
 
     // Patrón de archivos de prueba
     specPattern: 'cypress/e2e/**/*.cy.{js,jsx,ts,tsx}',
@@ -50,7 +50,7 @@ module.exports = defineConfig({
     env: {
       // URLs de producción
       apiUrl: 'https://segura-mente-app-ga8-220501096-aa1-ev02.onrender.com/api',
-      frontendUrl: 'https://segura-mente-app-frontend.vercel.app',
+      frontendUrl: 'https://segura-mente-app-final.vercel.app',
 
       // Configuración de Render
       renderColdStartTimeout: 60000,
