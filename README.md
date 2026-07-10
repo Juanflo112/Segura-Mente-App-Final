@@ -1,7 +1,6 @@
 ﻿# Segura-Mente App
 
 **Proyecto:** Segura-Mente - Sistema de Gestion de Usuarios y Agendamiento de Citas  
-**Evidencia:** GA8-220501096-AA1-EV02 modulos integrados  
 **Autor:** Juan Pablo Mejia Vargas  
 **Programa:** Analisis y Desarrollo de Software - SENA  
 **Version:** 2.0.0  
@@ -10,7 +9,7 @@
 ---
 
 > **Nota sobre migracion del repositorio:** Este proyecto fue migrado desde el repositorio
-> original [`segura-mente-app-GA8-220501096-AA1-EV02`](https://github.com/Juanflo112/segura-mente-app-GA8-220501096-AA1-EV02.git)
+> original [`segura-mente-app`](https://github.com/Juanflo112/segura-mente-app-GA8-220501096-AA1-EV02.git)
 > al repositorio actual [`Segura-Mente-App-Final`](https://github.com/Juanflo112/Segura-Mente-App-Final.git)
 > por motivos de mejoras en la funcionalidad y optimizacion del proceso de despliegue en produccion.
 
@@ -454,7 +453,6 @@ Este proyecto fue desarrollado como evidencia de aprendizaje para el programa
 Tecnologia en Analisis y Desarrollo de Software del Servicio Nacional de
 Aprendizaje (SENA), en el marco de la etapa productiva.
 
-Evidencia: GA8-220501096-AA1-EV02
 Ficha: 220501096
 
 Queda prohibida la reproduccion total o parcial de este software con fines
